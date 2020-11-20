@@ -19,10 +19,10 @@ This app will come to the MacOS as soon as i optimized the UI for larger screens
 
 
 # To-Do:
-* LiFePo support
-* Logging
-* Configuration
-* Stability improvements (Reconnect device for example)
-* MacOS support
-* Add more languages
-* Fancy UI
+- [] LiFePo support
+- [] Logging
+- [] Configuration
+- [] Stability improvements (Reconnect device for example)
+- [] MacOS support
+- [] Add more languages
+- [] Fancy UI
