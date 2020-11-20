@@ -1,0 +1,10 @@
+
+*.lock
+Smart BMS Utility/Pods/
+Smart BMS Utility/Smart BMS Utility.xcodeproj/
+Smart BMS Utility/Smart BMS Utility.xcworkspace/
+Smart BMS Utility/Smart BMS Utility/Assets.xcassets/
+Smart BMS Utility/Smart BMS Utility/Base.lproj/
+*.png
+*.plist
+*.entitlements
