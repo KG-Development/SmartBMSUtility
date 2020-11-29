@@ -27,3 +27,4 @@ This app will come to the MacOS as soon as i optimized the UI for larger screens
 - [ ] MacOS support
 - [ ] Add more languages
 - [ ] Fancy UI
+- [ ] iOS 14 Widget
