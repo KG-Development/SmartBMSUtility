@@ -6,7 +6,7 @@ https://www.lithiumbatterypcb.com/
 
 
 ## Status:
-iOS: [Approved v1.0.1](https://apps.apple.com/de/app/apple-store/id1540178292)
+iOS: [Approved v1.0.1](https://apps.apple.com/de/app/apple-store/id1540178292)<br>
 macOS: In review
 
 ## About this repository
