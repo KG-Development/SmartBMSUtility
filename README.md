@@ -5,9 +5,9 @@ https://www.lithiumbatterypcb.com/
 
 
 
-# Status:
-## iOS: Waiting for review
-## macOS: In review
+## Status:
+iOS: [Approved v1.0.1](https://apps.apple.com/de/app/apple-store/id1540178292)
+macOS: In review
 
 ## About this repository
 This repository is intended to track issues and minor feature requests. I have removed any relevant file from my Xcode workspace to avoid users compiling it for their own use, as I intend to make some in-app purchases or sell this tool for $1.09.
