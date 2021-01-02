@@ -17,10 +17,6 @@ You can contribute to this project by submitting untested code changes that I wi
 To contribute to this project and test it with the whole project, I can give you access to my private repository if you can prove that you have a current Apple developer license. This requirement could be waived, as it only serves to prevent other users from compiling for themselves.
 Contact me by e-mail, Discord @NeariX#4799 or Twitter (link in my profile) to gain access to my private repository containing all code.
 
-## MacOS Support
-This app will come to the MacOS as soon as i optimized the UI for larger screens.
-
-
 # To-Do:
 - [ ] LiFePo support
 - [ ] Logging
