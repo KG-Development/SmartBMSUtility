@@ -3,7 +3,8 @@ This is the repository for my iOS App to connect with Xiaoxiang Smart BMS'
 ### You can buy the bms here:
 https://www.lithiumbatterypcb.com/
 
-
+## Sponsors
+If you want to help me keep apps like this alive and updated, please consider becoming a github sponsor. This will help to cover my Apple Developer expenses.
 
 ## Status:
 iOS: [v1.0.2](https://apps.apple.com/de/app/apple-store/id1540178292)<br>
