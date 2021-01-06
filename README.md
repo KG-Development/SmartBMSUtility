@@ -27,3 +27,14 @@ Contact me by e-mail, Discord @NeariX#4799 or Twitter (link in my profile) to ga
 - [ ] Add more languages
 - [ ] Fancy UI
 - [ ] iOS 14 Widget
+
+# FAQ
+### I can't find my device in my app?
+The app searches for nearby devices with specific characteristics. If your Smart BMS offers different characteristics it will not display it. You can help me resolving this issue by sending me details about your BMS and its bluetooth characteristics.
+
+### Can I configure my BMS with this app?
+Not yet. I am currently working on it. This feature will come in version 1.1.0, I expect to release this version in mid january.
+
+### What's up with the GPS features in this App?
+Originally I wanted an iOS application to track my efficiency and the range of my electric scooter. So I contacted @smagicld to help him add this feature to his application, and he rejected it. Since it would be a waste of time and effort to make this application just for me, I decided to make it public, open source and as user-centric as possible. If your current use case needs a specific feature in the application, let me know, I will be happy to help implement your application.
+You should be able to use this application on your electric bicycle to see the current energy consumption, the energy use per kilometer/mile and the expected remaining range based on your current energy consumption and GPS speed.
