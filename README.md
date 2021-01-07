@@ -34,6 +34,7 @@ The app searches for nearby devices with specific characteristics. If your Smart
 
 ### Can I configure my BMS with this app?
 Not yet. I am currently working on it. This feature will come in version 1.1.0, I expect to release this version in mid january.
+Version 1.1.0 early beta can be downloaded through testflight here: https://testflight.apple.com/join/YWdbkZ8s
 
 ### What's up with the GPS features in this App?
 Originally I wanted an iOS application to track my efficiency and the range of my electric scooter. So I contacted @smagicld to help him add this feature to his application, and he rejected it. Since it would be a waste of time and effort to make this application just for me, I decided to make it public, open source and as user-centric as possible. If your current use case needs a specific feature in the application, let me know, I will be happy to help implement your application.
