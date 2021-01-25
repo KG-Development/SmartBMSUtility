@@ -7,8 +7,12 @@ https://www.lithiumbatterypcb.com/
 If you want to help me keep apps like this alive and updated, please consider becoming a github sponsor. This will help to cover my Apple Developer expenses.
 
 ## Status:
-iOS: [v1.0.2](https://apps.apple.com/de/app/apple-store/id1540178292)<br>
-macOS: [v1.0.2](https://apps.apple.com/de/app/apple-store/id1540178292)
+iOS: [v1.1.0](https://apps.apple.com/de/app/apple-store/id1540178292)<br>
+macOS: [v1.1.0](https://apps.apple.com/de/app/apple-store/id1540178292)
+
+## Known issues:
+* Configuration does not work for Liontron batteries (unfixable)
+
 
 ## About this repository
 This repository is intended to track issues and minor feature requests. I have removed any relevant file from my Xcode workspace to avoid users compiling it for their own use, as I intend to sell this tool for $0.49.
