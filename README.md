@@ -7,7 +7,7 @@ https://www.lithiumbatterypcb.com/
 If you want to help me keep apps like this alive and updated, please consider becoming a github sponsor. This will help to cover my Apple Developer expenses.
 
 ## Status:
-iOS: [v1.1.0](https://apps.apple.com/de/app/apple-store/id1540178292)<br>
+iOS: [v1.1.1](https://apps.apple.com/de/app/apple-store/id1540178292)<br>
 macOS: [v1.1.0](https://apps.apple.com/de/app/apple-store/id1540178292)
 
 ## Known issues:
@@ -25,11 +25,10 @@ Contact me by e-mail, Discord @NeariX#4799 or Twitter (link in my profile) to ga
 # To-Do:
 - [ ] LiFePo support
 - [ ] Logging
-- [ ] Configuration
+- [x] Configuration
 - [ ] Stability improvements (Reconnect device for example)
 - [x] MacOS support
 - [ ] Add more languages
-- [ ] Fancy UI
 - [ ] iOS 14 Widget
 
 # FAQ
