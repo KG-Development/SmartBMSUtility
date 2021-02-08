@@ -1,4 +1,7 @@
 # Changelog
+## v1.1.2 (upcoming)
+	- Option to log BMS data
+	- Reworked persistent storage backend
 ## v1.1.1
 	- Fixed crashes when higher currents are beeing drawn
 	- Exit condition for reading and writing data in the configuration page
