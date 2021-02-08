@@ -1,7 +1,7 @@
 # SmartBMSUtility
 This is the repository for my iOS App to connect with Xiaoxiang Smart BMS' 
 ### You can buy the bms here:
-https://www.lithiumbatterypcb.com/
+https://www.lithiumbatterypcb.com/<br>
 https://overkillsolar.com/
 
 ## Sponsors
