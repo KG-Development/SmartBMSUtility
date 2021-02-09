@@ -6,37 +6,70 @@
 //
 
 import UIKit
-import MBCircularProgressBar
+import TYProgressBar
+import NotificationBannerSwift
+import LGButton
 
 class OverviewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
     
+    
+    let onColors: [UIColor] = [UIColor(red: 0.395, green: 0.711, blue: 0.0, alpha: 0.85), UIColor(red: 0.042, green: 0.54, blue: 0.0, alpha: 0.85)]
+    let offColors: [UIColor] = [UIColor(red: 1, green: 0.455, blue: 0.0, alpha: 0.85), .systemRed]
+    
+    static var notificationQueue: NotificationBannerQueue!
     static var BLEInterface: BluetoothInterface?
     
-    @IBOutlet weak var progressBar: MBCircularProgressBarView!
+    static var notificationManager = NotificationController()
     
     @IBOutlet weak var batteryVoltageLabel: UILabel!
     @IBOutlet weak var batteryPowerLabel: UILabel!
     @IBOutlet weak var batteryCurrentLabel: UILabel!
+    @IBOutlet weak var batteryCapacityLabel: UILabel!
+    
+    @IBOutlet weak var ChargingButton: LGButton!
+    var chargingEnabled = true
+    @IBOutlet weak var DischargingButton: LGButton!
+    var dischargingEnabled = true
+    var didLoadButtons = false
+    
     
     @IBOutlet weak var detailTableView: UITableView!
     
+    @IBOutlet weak var progressBar: TYProgressBar!
     
     static var peakPower = 0.0
     static var peakCurrent = 0.0
     static var lowestVoltage = 0.0
     static var highestVoltage = 0.0
     
+    static var waitingForMosStatus = false
+    var lastMosWriteReceived = Date().millisecondsSince1970 {
+        didSet {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                if Date().millisecondsSince1970 - self.lastMosWriteReceived > 1400 && OverviewController.waitingForMosStatus {
+                    print("Re-updating MOS status!...")
+                    self.sendMosStatus()
+                }
+            }
+            
+        }
+    }
+    
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+        OverviewController.notificationManager.setupObserver()
         //TODO: Set min/max according to LiIon/LiFePo
         
         detailTableView.delegate = self
         detailTableView.dataSource = self
         detailTableView.allowsSelection = false
         
-//        OverviewController.timer = Timer.scheduledTimer(timeInterval: TimeInterval(Double(SettingController.refreshTime) / 1000.0), target: self, selector: #selector(sendPacketNotification), userInfo: nil, repeats: true)
+        progressBar.debugInit()
+        progressBar.lineDashPattern = [4, 2]
+        progressBar.lineHeight = 14
+        progressBar.font = UIFont(name: "HelveticaNeue-Medium", size: 23)!
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -57,52 +90,56 @@ class OverviewController: UIViewController, UITableViewDelegate, UITableViewData
     }
     
     override func viewWillAppear(_ animated: Bool) {
-        cmd_basicInformation.numberOfTempSensors = 2
+        OverviewController.notificationQueue = NotificationBannerQueue(maxBannersOnScreenSimultaneously: 2)
+        traitCollectionDidChange(nil)
         detailTableView.reloadData()
+        progressBar.isCharging = false
+        progressBar.lastIsCharging = false
+        updateButtons()
     }
     
     @objc func dataAvailable() {
+        if !didLoadButtons {
+            dischargingEnabled = cmd_basicInformation.dischargingPort
+            chargingEnabled = cmd_basicInformation.chargingPort
+            didLoadButtons = true
+        }
         //print("OverviewController: dataAvailable()")
-        
+        progressBar.isCharging = (cmd_basicInformation.current ?? 0) != 0
         UIView.animate(withDuration: 0.8) {
-            self.progressBar.value = CGFloat(cmd_basicInformation.rsoc ?? 0)
+            self.progressBar.progress = Double(cmd_basicInformation.rsoc ?? 0)/100.0
             if(cmd_basicInformation.rsoc ?? 0 >= 0 && cmd_basicInformation.rsoc ?? 0 <= 20) {
                 let color = self.mapColor(color1: .red, color2: .yellow, value: self.map(x: CGFloat(cmd_basicInformation.rsoc ?? 0), in_min: 0.0, in_max: 20, out_min: 0.0, out_max: 100))
-                self.progressBar.progressColor = color
-                self.progressBar.progressStrokeColor = color
+                self.progressBar.gradients = color
             }
             else if(cmd_basicInformation.rsoc ?? 0 > 20 && cmd_basicInformation.rsoc ?? 0 <= 40) {
                 let color = self.mapColor(color1: .yellow, color2: .green, value: self.map(x: CGFloat(cmd_basicInformation.rsoc ?? 0), in_min: 21, in_max: 40, out_min: 0.0, out_max: 100))
-                self.progressBar.progressColor = color
-                self.progressBar.progressStrokeColor = color
+                self.progressBar.gradients = color
             }
             else {
-                self.progressBar.progressColor = .green
-                self.progressBar.progressStrokeColor = .green
+                self.progressBar.gradients = [.green, UIColor(red: 0.0, green: 1.0, blue: 0.45, alpha: 1.0)]
             }
         }
         
-        
-        
         batteryVoltageLabel.text = BMSData.convertToString(value: cmd_basicInformation.totalVoltage ?? 0) + " V"
-        let power = Double(Double(cmd_basicInformation.current ?? 0)/100) * Double(Double(cmd_basicInformation.totalVoltage ?? 0)/100)
+        let power = abs(Double(Double(cmd_basicInformation.current ?? 0)/100) * Double(Double(cmd_basicInformation.totalVoltage ?? 0)/100))
         if(power > OverviewController.peakPower) {
             OverviewController.peakPower = power
         }
-        if(Double(cmd_basicInformation.current ?? 0) / Double(100) > OverviewController.peakCurrent) {
-            OverviewController.peakCurrent = Double(cmd_basicInformation.current ?? 0) / Double(100)
+        if(abs(Double(cmd_basicInformation.current ?? 0)) / Double(100) > OverviewController.peakCurrent) {
+            OverviewController.peakCurrent = abs(Double(cmd_basicInformation.current ?? 0)) / Double(100)
         }
         batteryPowerLabel.text = String(format: "%.0f", power) + " W"
         batteryCurrentLabel.text = String(format: "%.2f", Double(cmd_basicInformation.current ?? 0) / 100.0) + " A"
-//        lowestCellLabel.text = BMSData.convertToVoltageString(value: BMSData.getLowestCell().1, decimalplaces: 3) + " V"
-//        averageCellVoltage.text = BMSData.convertToVoltageString(value: UInt16(BMSData.getAvgCell()), decimalplaces: 3) + " V"
-//        highestCellVoltage.text = BMSData.convertToVoltageString(value: UInt16(BMSData.getHighestCell().1), decimalplaces: 3) + " V"
-//        peakCurrentLabel.text = String(format: "%.2f", peakCurrent) + " A"
+        batteryCapacityLabel.text = "\(String(format: "%.2f", Double(cmd_basicInformation.residualCapacity ?? 0) / 100.0)) of \(String(format: "%.2f", Double(cmd_basicInformation.nominalCapacity ?? 0) / 100.0)) Ah"
         detailTableView.reloadData()
+        detailTableView.estimatedRowHeight = 0
+        detailTableView.estimatedSectionHeaderHeight = 0
+        detailTableView.estimatedSectionFooterHeight = 0
+        updateButtons()
     }
     
-    
-    func mapColor(color1: UIColor, color2: UIColor, value: CGFloat) -> UIColor {
+    func mapColor(color1: UIColor, color2: UIColor, value: CGFloat) -> [UIColor] {
         var red1: CGFloat = 0
         var green1: CGFloat = 0
         var blue1: CGFloat = 0
@@ -113,11 +150,14 @@ class OverviewController: UIViewController, UITableViewDelegate, UITableViewData
         var blue2: CGFloat = 0
         color2.getRed(&red2, green: &green2, blue: &blue2, alpha: nil)
         
-        
         let red3: CGFloat = map(x: value, in_min: 0.0, in_max: 100, out_min: red1, out_max: red2)
         let green3: CGFloat = map(x: value, in_min: 0.0, in_max: 100, out_min: green1, out_max: green2)
         let blue3: CGFloat = map(x: value, in_min: 0.0, in_max: 100, out_min: blue1, out_max: blue2)
-        return UIColor(red: red3, green: green3, blue: blue3, alpha: 1.0)
+        
+        let red4: CGFloat = map(x: value, in_min: 10, in_max: 90, out_min: red1, out_max: red2)
+        let green4: CGFloat = map(x: value, in_min: 10, in_max: 90, out_min: green1, out_max: green2)
+        let blue4: CGFloat = map(x: value, in_min: 10, in_max: 90, out_min: blue1, out_max: blue2)
+        return [UIColor(red: red3, green: green3, blue: blue3, alpha: 1.0), UIColor(red: red4, green: green4, blue: blue4, alpha: 0.95)]
     }
     
     func map(x: CGFloat, in_min: CGFloat, in_max: CGFloat, out_min: CGFloat, out_max: CGFloat) -> CGFloat {
@@ -126,10 +166,9 @@ class OverviewController: UIViewController, UITableViewDelegate, UITableViewData
     
     func doubleToRemainingTime(time: Double) -> String {
         if time >= 1.0 {
-            var returnString = String(format: "%.0f", time) + "h"
+            var returnString = String(format: "%.0f", floor(time)) + "h"
             let minuteRemainder = round(time.truncatingRemainder(dividingBy: 1.0) * 60)
-            if minuteRemainder > 0 {
-                //print(minuteRemainder)
+            if minuteRemainder > 0 && minuteRemainder < 60 {
                 returnString += ", " + String(format: "%.0f", minuteRemainder) + "min"
             }
             return returnString
@@ -194,25 +233,29 @@ class OverviewController: UIViewController, UITableViewDelegate, UITableViewData
                 if current == 0 {
                     cell.descriptionLabel.text = "Remaining runtime:"
                     cell.valueLabel.text = " - "
+                    BMSData.lastCurrentIndex = -1
                 }
-                else if current < 0 {
+                else if current > 0 {
                     cell.descriptionLabel.text = "Remaining chargetime:"
-                    let remainingTime = Double((cmd_basicInformation.nominalCapacity ?? 0) - (cmd_basicInformation.residualCapacity ?? 0)) / Double(-current)
+                    let remainingTime = Double((cmd_basicInformation.nominalCapacity ?? 0) - (cmd_basicInformation.residualCapacity ?? 0)) / Double(current)
                     let remainingTimeString = doubleToRemainingTime(time: remainingTime*0.9)
                     cell.valueLabel.text = remainingTimeString
                 }
                 else {
                     cell.descriptionLabel.text = "Remaining runtime:"
-                    let remainingTime = Double(cmd_basicInformation.residualCapacity ?? 0) / Double(current)
+                    let remainingTime = Double(cmd_basicInformation.residualCapacity ?? 0) / Double(-current)
                     let remainingTimeString = doubleToRemainingTime(time: remainingTime)
                     cell.valueLabel.text = remainingTimeString
                 }
             default:
-                var description = UserDefaults.standard.string(forKey: "com.nearix.Smart-BMS-Utility:\(DevicesController.getConnectedDevice().getIdentifier()):\(indexPath.row-7)")
-                if description == nil || description == "" {
-                    description = "Temperature \(indexPath.row-6)"
+                let identifier = DevicesController.getConnectedDevice().getIdentifier()
+                if identifier != "" {
+                    let description = UserDefaults.standard.string(forKey: "com.nearix.Smart-BMS-Utility:\(identifier):\(indexPath.row-7)") ?? "Temperature \(indexPath.row-6)"
+                    cell.descriptionLabel.text = description + ":"
                 }
-                cell.descriptionLabel.text = description! + ":"
+                else {
+                    cell.descriptionLabel.text = "Temperature \(indexPath.row-6):"
+                }
                 let temperatureUnit = (SettingController.thermalUnit == .celsius) ? "C" : "F"
                 cell.valueLabel.text = String(format: "%.1f", cmd_basicInformation.temperatureReadings[indexPath.row-7]) + "°" + temperatureUnit
             }
@@ -220,14 +263,27 @@ class OverviewController: UIViewController, UITableViewDelegate, UITableViewData
         }
         else {
             let cell = tableView.dequeueReusableCell(withIdentifier: "VoltageCell", for: indexPath) as! VoltageInfoCell
+            
             cell.cellLabel.text = "Cell " + String(indexPath.row+1) + ":\t " + BMSData.convertToVoltageString(value: cmd_voltages.voltageOfCell[indexPath.row], decimalplaces: 3) + " V"
+            let in_min = Float(cmd_configuration.CellEmptyVoltage ?? 3000) / 1000.0
+            let in_max = Float(cmd_configuration.CellFullVoltage ?? 4200) / 1000.0
+            cell.progressView.progress = self.map(x: Float(cmd_voltages.voltageOfCell[indexPath.row]) / 1000.0, in_min: in_min, in_max: in_max, out_min: 0.0, out_max: 1.0)
             
-//            UIView.setAnimationsEnabled(true)
-//            UIView.animate(withDuration: Double(SettingController.refreshTime) / 1000.0 * 0.8) {
-//            } Pretty buggy, do not use?
+            UIView.animate(withDuration: Double((SettingController.refreshTime / 1000)) * 0.35) {
+                cell.balancingImage.alpha = (cmd_basicInformation.balanceCells[indexPath.row] ? CGFloat(1.0) : CGFloat(0.0))
+            }
             
-            cell.progressView.setProgress(self.map(x: Float(cmd_voltages.voltageOfCell[indexPath.row]) / 1000.0, in_min: 3.0, in_max: 4.2, out_min: 0.0, out_max: 1.0), animated: true)
-            cell.balancingImage.alpha = (cmd_basicInformation.balanceCells[indexPath.row] ? CGFloat(1.0) : CGFloat(0.0))
+            #if targetEnvironment(macCatalyst)
+                if self.view.bounds.width > 900 {
+                    cell.voltageWidthConstraint.constant = 500
+                }
+                else {
+                    cell.voltageWidthConstraint.constant = self.view.bounds.width - 400
+                }
+            #else
+            #endif
+            
+            
             return cell
         }
     }
@@ -237,12 +293,16 @@ class OverviewController: UIViewController, UITableViewDelegate, UITableViewData
     }
     
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
-        progressBar.value = 0.0
+        self.progressBar.progress = 0.0
+        self.progressBar.textColor = .label
         dataAvailable()
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 32
+        #if targetEnvironment(macCatalyst)
+            return 36
+        #endif
+        return 28
     }
     
     func numberOfSections(in tableView: UITableView) -> Int {
@@ -264,6 +324,77 @@ class OverviewController: UIViewController, UITableViewDelegate, UITableViewData
             return "Cellvoltages"
         default:
             return ""
+        }
+    }
+    @IBAction func chargingPressed(_ sender: LGButton) {
+        print("Togglig charging")
+        chargingEnabled = !chargingEnabled
+        sender.isLoading = true
+        OverviewController.waitingForMosStatus = true
+        lastMosWriteReceived = Date().millisecondsSince1970
+        sendMosStatus()
+        updateButtons()
+    }
+    
+    @IBAction func dischargingPressed(_ sender: LGButton) {
+        print("Togglig discharging")
+        dischargingEnabled = !dischargingEnabled
+        sender.isLoading = true
+        OverviewController.waitingForMosStatus = true
+        lastMosWriteReceived = Date().millisecondsSince1970
+        sendMosStatus()
+        updateButtons()
+    }
+    
+    func sendMosStatus() {
+        var mosCode: UInt8 = 3
+        if chargingEnabled {
+            mosCode -= 1
+        }
+        if dischargingEnabled {
+            mosCode -= 2
+        }
+//        print("\tSend Charging:    \(chargingEnabled.description)")
+//        print("\tSend Discharging: \(dischargingEnabled.description)")
+//        print("\tmosCode: \(mosCode)")
+        OverviewController.BLEInterface?.sendCustomRequest(data: [0xDD, 0x5A, 0xE1, 0x02, 0x00, mosCode, 0xFF, 0x1D - mosCode, 0x77])
+    }
+    
+    func updateButtons() {
+        
+        if chargingEnabled == cmd_basicInformation.chargingPort {
+            ChargingButton.isLoading = false
+        }
+        if dischargingEnabled == cmd_basicInformation.dischargingPort {
+            DischargingButton.isLoading = false
+        }
+//        print("OverviewController: updateButtons()")
+        ChargingButton.gradientStartColor = nil
+        ChargingButton.gradientEndColor = nil
+        ChargingButton.gradientRotation = 45
+        ChargingButton.gradientHorizontal = false
+        DischargingButton.gradientStartColor = nil
+        DischargingButton.gradientEndColor = nil
+        DischargingButton.gradientRotation = 45
+        DischargingButton.gradientHorizontal = false
+        
+        
+        if cmd_basicInformation.chargingPort {
+            ChargingButton.gradientStartColor = onColors[0]
+            ChargingButton.gradientEndColor = onColors[1]
+        }
+        else {
+            ChargingButton.gradientStartColor = offColors[0]
+            ChargingButton.gradientEndColor = offColors[1]
+        }
+        
+        if cmd_basicInformation.dischargingPort {
+            DischargingButton.gradientStartColor = onColors[0]
+            DischargingButton.gradientEndColor = onColors[1]
+        }
+        else {
+            DischargingButton.gradientStartColor = offColors[0]
+            DischargingButton.gradientEndColor = offColors[1]
         }
     }
 }

@@ -29,7 +29,7 @@ class demoDevice {
     
     @objc static func generateData() {
         if DevicesController.connectionMode == .demo {
-            print("demoDevice: generateData()")
+//            print("demoDevice: generateData()")
             
             let voltage = UInt16ToUInt8(data: 0x08E0 - UInt16.random(in: 0...80))
             let cell1 = UInt16ToUInt8(data: 0x0ED6 - UInt16.random(in: 0...125))

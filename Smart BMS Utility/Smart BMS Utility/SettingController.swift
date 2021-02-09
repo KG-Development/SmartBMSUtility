@@ -15,16 +15,11 @@ class SettingController: UITableViewController {
     @IBOutlet weak var tempSegmentControl: UISegmentedControl!
     @IBOutlet weak var distanceSegmentControl: UISegmentedControl!
     
-    @IBOutlet weak var wifiButton: UISwitch!
-    @IBOutlet weak var bluetoothButton: UISwitch!
     @IBOutlet weak var demoSwitch: UISwitch!
-    
-    @IBOutlet weak var wifiInfoButton: UIButton!
     
     @IBOutlet weak var gpsAccuracyDetailLabel: UILabel!
     
     
-    static var useWiFi = false
     static var useBluetooth = true
     static var useDemo = true
     static var udpPort: Int32 = 4210
@@ -59,21 +54,16 @@ class SettingController: UITableViewController {
         DispatchQueue.main.asyncAfter(deadline: .now()) {
             print("SettingController: loadAndDisplaySettings()")
             
-            let bluetooth = UserDefaults.standard.object(forKey: "com.nearix.Smart-BMS-Utility:useBluetooth") as? Bool
-            let wifi = UserDefaults.standard.object(forKey: "com.nearix.Smart-BMS-Utility:useWiFi") as? Bool
+//            let bluetooth = UserDefaults.standard.object(forKey: "com.nearix.Smart-BMS-Utility:useBluetooth") as? Bool
             let demo = UserDefaults.standard.object(forKey: "com.nearix.Smart-BMS-Utility:useDemo") as? Bool
-            if bluetooth != nil {
-                SettingController.useBluetooth = bluetooth!
-            }
-            if wifi != nil {
-                SettingController.useWiFi = wifi!
-            }
+//            if bluetooth != nil {
+//                SettingController.useBluetooth = bluetooth!
+//            }
             if demo != nil {
                 SettingController.useDemo = demo!
             }
             
-            self.bluetoothButton.isOn = SettingController.useBluetooth
-            self.wifiButton.isOn = SettingController.useWiFi
+//            self.bluetoothButton.isOn = SettingController.useBluetooth
             self.demoSwitch.isOn = SettingController.useDemo
             
             let distanceInt = UserDefaults.standard.integer(forKey: "com.nearix.Smart-BMS-Utility:distanceUnit")
@@ -131,15 +121,11 @@ class SettingController: UITableViewController {
     static func loadSettings() {
         print("SettingController: loadSettings()")
         
-        let bluetooth = UserDefaults.standard.object(forKey: "com.nearix.Smart-BMS-Utility:useBluetooth") as? Bool
-        let wifi = UserDefaults.standard.object(forKey: "com.nearix.Smart-BMS-Utility:useWiFi") as? Bool
+//        let bluetooth = UserDefaults.standard.object(forKey: "com.nearix.Smart-BMS-Utility:useBluetooth") as? Bool
         let demo = UserDefaults.standard.object(forKey: "com.nearix.Smart-BMS-Utility:useDemo") as? Bool
-        if bluetooth != nil {
-            SettingController.useBluetooth = bluetooth!
-        }
-        if wifi != nil {
-            SettingController.useWiFi = wifi!
-        }
+//        if bluetooth != nil {
+//            SettingController.useBluetooth = bluetooth!
+//        }
         if demo != nil {
             SettingController.useDemo = demo!
         }
@@ -216,17 +202,13 @@ class SettingController: UITableViewController {
             alert.addAction(UIAlertAction(title: "Cancel", style: .cancel) { _ in
                 
             })
-            if let popoverController = alert.popoverPresentationController {
-                popoverController.sourceView = tableView.cellForRow(at: indexPath)!.contentView
-                popoverController.sourceRect = tableView.cellForRow(at: indexPath)!.bounds
-            }
+
             present(alert, animated: true)
         }
-    }
-    
-    @IBAction func wifiSwitched(_ sender: UISwitch) {
-        SettingController.useWiFi = sender.isOn
-        UserDefaults.standard.setValue(sender.isOn, forKey: "com.nearix.Smart-BMS-Utility:useWiFi")
+        else if indexPath.row == 3 && indexPath.section == 1 {
+            guard let url = URL(string: "https://github.com/NeariX67/SmartBMSUtility/blob/main/Credits.md") else { return }
+            UIApplication.shared.open(url)
+        }
     }
     
     @IBAction func bluetoothSwitched(_ sender: UISwitch) {
@@ -236,11 +218,6 @@ class SettingController: UITableViewController {
     @IBAction func demoSwitched(_ sender: UISwitch) {
         SettingController.useDemo = sender.isOn
         UserDefaults.standard.setValue(sender.isOn, forKey: "com.nearix.Smart-BMS-Utility:useDemo")
-    }
-    @IBAction func wifiInfoPressed(_ sender: Any) {
-        //TODO: Set github url
-        guard let url = URL(string: "https://stackoverflow.com") else { return }
-        UIApplication.shared.open(url)
     }
     
     @IBAction func thermalChanged(_ sender: UISegmentedControl) {

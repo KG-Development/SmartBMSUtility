@@ -17,6 +17,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISceneDelegate {
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         AppDelegate.timer = Timer.scheduledTimer(timeInterval: TimeInterval(Double(SettingController.refreshTime) / 1000.0), target: self, selector: #selector(sendPacketNotification), userInfo: nil, repeats: true)
+        UserDefaults.standard.set(false, forKey: "_UIConstraintBasedLayoutLogUnsatisfiable")
+        
         return true
     }
     
@@ -62,10 +64,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISceneDelegate {
     
     @objc func sendPacketNotification() {
 //        print("AppDelegate: sendPacketNotification()")
-        if SettingController.useWiFi && DevicesController.connectionMode == .wifi {
-            NotificationCenter.default.post(name: Notification.Name("WiFiPacketSendNeeded"), object: nil)
-        }
-        if SettingController.useBluetooth && DevicesController.connectionMode == .bluetooth {
+        if SettingController.useBluetooth && DevicesController.connectionMode == .bluetooth && !(OverviewController.BLEInterface?.pauseTransmission ?? false) {
             NotificationCenter.default.post(name: Notification.Name("BluetoothSendNeeded"), object: nil)
         }
         if SettingController.useDemo && DevicesController.connectionMode == .demo {

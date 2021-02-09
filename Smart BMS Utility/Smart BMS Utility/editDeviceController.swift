@@ -15,20 +15,9 @@ class editDeviceController: UIViewController {
     @IBOutlet weak var deviceNameLabel: UILabel!
     @IBOutlet weak var deviceNameTextField: UITextField!
     
-    @IBOutlet weak var detailLabel: UILabel!
-    @IBOutlet weak var detailTextField: UITextField!
-    
     override func viewDidLoad() {
         selectedDevice = DevicesController.deviceArray[editDeviceController.deviceIndex]
-        if selectedDevice.type == device.connectionType.bluetooth {
-            detailLabel.isHidden = true
-            detailTextField.isHidden = true
-            deviceNameTextField.text = selectedDevice.deviceName
-        }
-        else if selectedDevice.type == device.connectionType.wifi {
-            deviceNameTextField.text = selectedDevice.deviceName
-            detailTextField.text = selectedDevice.WiFiAddress
-        }
+        deviceNameTextField.text = selectedDevice.deviceName
         super.viewDidLoad()
     }
     @IBAction func saveButton(_ sender: Any) {
