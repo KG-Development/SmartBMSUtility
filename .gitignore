@@ -8,5 +8,4 @@ Smart BMS Utility/Smart BMS Utility/Base.lproj/
 *.png
 *.plist
 *.entitlements
-Podfile
 .DS_Store
