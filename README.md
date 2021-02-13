@@ -28,14 +28,6 @@ Contact me by e-mail, Discord @NeariX#4799 or Twitter (link in my profile) to ga
 
 Make sure to check out [Discussions](https://github.com/NeariX67/SmartBMSUtility/discussions) where I'm willing to help you.
 
-# To-Do:
-- [ ] LiFePo support
-- [ ] Logging
-- [x] Configuration
-- [ ] Stability improvements (Reconnect device for example)
-- [x] MacOS support
-- [ ] Add more languages
-- [ ] iOS 14 Widget
 
 # FAQ
 ### I can't find my device in my app?
