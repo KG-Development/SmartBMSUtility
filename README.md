@@ -5,11 +5,11 @@ https://www.lithiumbatterypcb.com/<br>
 https://overkillsolar.com/
 
 ## Sponsors
-If you want to help me keep apps like this alive and updated, please consider becoming a github sponsor or leaving as much as you want on my paypal. This will help to cover my Apple Developer expenses of 100$ a year.
+If you want to help me keep apps like this alive and updated, please consider becoming a github sponsor or leaving as much as you want on my paypal. This will help to cover my Apple Developer expenses of 99$ a year.
 
 ## Status:
-iOS: [v1.1.1](https://apps.apple.com/de/app/apple-store/id1540178292)<br>
-macOS: [v1.1.0](https://apps.apple.com/de/app/apple-store/id1540178292)
+iOS: [v1.2.0](https://apps.apple.com/de/app/apple-store/id1540178292)<br>
+macOS: [v1.2.0](https://apps.apple.com/de/app/apple-store/id1540178292)
 
 #### [Changelog](https://github.com/NeariX67/SmartBMSUtility/blob/main/changelog.md)
 
