@@ -1,5 +1,10 @@
 # Changelog
-## v1.2.0 (upcoming)
+## v1.2.1
+    - Fixed some minor crashes
+    - Fixed capacity settings and overvoltage protection values over 65530
+    - Added logic that detects when certain features are unavailable and blocks them from beeing used
+
+## v1.2.0
     - Added warning for LionTron users
 	- Option to log BMS data
 	- Reworked persistent storage backend
