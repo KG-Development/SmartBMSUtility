@@ -1,7 +1,7 @@
 
 # To-Do:
 - [x] LiFePo support (Possible after reading configuration)
-- [x] Logging (In work)
+- [x] Logging
 - [x] Configuration
 - [X] Stability improvements (Reconnect device for example)
 - [x] MacOS support
@@ -15,3 +15,4 @@
 - [ ] Settings for power consuming operations (enable GPS fetching while in overview for example)
 - [ ] Fix overview icon for iOS 13
 - [ ] Fix NTC Sensor buttons for iPhone 5S screensizes
+- [ ] Add graph views for logging (in work)
