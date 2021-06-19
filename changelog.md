@@ -1,4 +1,16 @@
 # Changelog
+## v2.0.0 (planed)
+	- complete recode in SwiftUI
+	- improve range calculation on GPS page
+
+## v1.2.2
+	- Fixed charging/discharging buttons sending wrong states after first launch
+	- Added "pull down to refresh" on the devices tab to clear the list and search for new devices
+	- Added a graph view for logging (experimental, just a interim solution)
+	- fixed red texts in the logging files list
+	- Auto connect to device
+	- Fixed negative values on GPS page
+
 ## v1.2.1
     - Fixed some minor crashes
     - Fixed capacity settings and overvoltage protection values over 65530
