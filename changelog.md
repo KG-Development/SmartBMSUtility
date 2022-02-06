@@ -1,7 +1,6 @@
 # Changelog
-## v2.0.0 (planed)
+## v2.0.0 - available on TextFlight
 	- complete recode in SwiftUI
-	- improve range calculation on GPS page
 
 ## v1.2.2
 	- Fixed charging/discharging buttons sending wrong states after first launch
