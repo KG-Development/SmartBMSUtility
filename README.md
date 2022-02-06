@@ -8,6 +8,7 @@ https://overkillsolar.com/
 If you want to help me keep apps like this alive and updated, please consider becoming a github sponsor or leaving as much as you want on my paypal. This will help to cover my Apple Developer expenses of 99$ a year.
 
 ## Status:
+iOS: [v2.0 on TestFlight](https://testflight.apple.com/join/YWdbkZ8s)<br>
 iOS: [v1.2.2](https://apps.apple.com/de/app/apple-store/id1540178292)<br>
 macOS: [v1.2.2](https://apps.apple.com/de/app/apple-store/id1540178292)
 
