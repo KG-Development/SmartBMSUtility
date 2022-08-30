@@ -1,5 +1,5 @@
 # SmartBMSUtility
-This is the repository for my iOS App to connect with Xiaoxiang Smart BMS' 
+This is the repository for my iOS App to connect with Xiaoxiang (JBD) Smart BMS' 
 ### You can buy the bms here:
 https://www.lithiumbatterypcb.com/<br>
 https://overkillsolar.com/
@@ -8,19 +8,22 @@ https://overkillsolar.com/
 If you want to help me keep apps like this alive and updated, please consider becoming a github sponsor or leaving as much as you want on my paypal. This will help to cover my Apple Developer expenses of 99$ a year.
 
 ## Status:
-iOS: [v2.0 on TestFlight](https://testflight.apple.com/join/YWdbkZ8s)<br>
-iOS: [v1.2.2](https://apps.apple.com/de/app/apple-store/id1540178292)<br>
-macOS: [v1.2.2](https://apps.apple.com/de/app/apple-store/id1540178292)
+
+#### iOS: [v2.0 on TestFlight](https://testflight.apple.com/join/YWdbkZ8s)
+##### I'm waiting for the release of iOS 16, MacOS 13 and the corresponding XCode version to publish version 2.0
+#### iOS: [v1.2.2](https://apps.apple.com/de/app/apple-store/id1540178292)<br>
+#### macOS: [v1.2.2](https://apps.apple.com/de/app/apple-store/id1540178292)
 
 #### [Changelog](https://github.com/NeariX67/SmartBMSUtility/blob/main/changelog.md)
 
 
 ## Known issues:
-* Configuration does not work for Liontron batteries (unfixable)
+### LionTron batteries can't be configured
+This is because liontron uses a hardware password. If you know this password, you can enter it in the app (version 2 or newer) 
 
 
 ## About this repository
-This repository is intended to track issues and minor feature requests. I have removed any relevant file from my Xcode workspace to avoid users compiling it for their own use, as I intend to sell this tool for $0.49.
+This repository is intended to track issues and minor feature requests. I have removed any relevant file from my Xcode workspace to avoid users compiling it for their own use, as I intend to sell this tool.
 
 ## Contributing
 You can contribute to this project by submitting untested code changes that I will test with my workspace.
