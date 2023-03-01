@@ -13,7 +13,6 @@ class tabBarController: UITabBarController, UITabBarControllerDelegate {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         self.delegate = self
-        print("tabBarController: willAppear()")
         self.moreNavigationController.navigationBar.isHidden = true
         traitCollectionDidChange(nil)
     }

@@ -7,7 +7,7 @@
 
 import UIKit
 
-class editDeviceController: UIViewController {
+class editDeviceController2: UIViewController {
     
     static var deviceIndex = -1
     var selectedDevice: device!
@@ -19,19 +19,22 @@ class editDeviceController: UIViewController {
         if DevicesController.getConnectedDevice() != nil {
             selectedDevice = DevicesController.getConnectedDevice()
         }
+        else if DevicesController.connectionMode == .demo {
+            return
+        }
         else {
             selectedDevice = DevicesController.deviceArray[editDeviceController.deviceIndex]
         }
         
         deviceNameTextField.text = selectedDevice.settings.deviceName
-        navigationItem.backBarButtonItem = UIBarButtonItem(
-            title: "Something Else", style: .plain, target: nil, action: nil)
+        self.navigationItem.hidesBackButton = true
         super.viewDidLoad()
     }
     @IBAction func saveButton(_ sender: Any) {
         self.dismiss(animated: true) { [self] in
             NotificationCenter.default.post(name: Notification.Name("reloadDevices"), object: nil)
         }
+        self.navigationController?.popViewController(animated: true)
     }
     
     override func viewWillDisappear(_ animated: Bool) {

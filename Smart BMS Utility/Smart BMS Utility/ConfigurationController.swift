@@ -112,6 +112,8 @@ class ConfigurationController: UITableViewController, UITextFieldDelegate {
     static var WritingStarted = false
     static var WritingCommandsNeeded = 0
     
+    var alreadyRead = false
+    
     static var retryCount = 0
     
     
@@ -175,16 +177,41 @@ class ConfigurationController: UITableViewController, UITextFieldDelegate {
                     ConfigurationController.sendNextWriteCommand(address: 0)
                 }
                 else {
-                    print("\(Date().millisecondsSince1970 - self.lastWriteDataReceived > 1400), \(ConfigurationController.WritingStarted)")
+//                    print("\(Date().millisecondsSince1970 - self.lastWriteDataReceived > 1400), \(ConfigurationController.WritingStarted)")
                 }
             }
         }
     }
     
+    @objc func updateReadDataButton() {
+        let device = DevicesController.getConnectedDevice()
+        if device != nil {
+            if device!.settings.liontronMode ?? false {
+                print("Disabling read bms button")
+                readDataButton.isEnabled = false
+                readDataButton.isLoading = false
+                readDataButton.gradientRotation = 45
+                readDataButton.gradientHorizontal = false
+                readDataButton.gradientStartColor = OverviewController.disabledColors[0]
+                readDataButton.gradientEndColor = OverviewController.disabledColors[1]
+                readDataButton.layoutSubviews()
+            }
+            else {
+                print("Enabling read bms button")
+                readDataButton.isEnabled = true
+                readDataButton.isLoading = false
+                readDataButton.gradientRotation = 45
+                readDataButton.gradientHorizontal = false
+                readDataButton.gradientStartColor = .systemOrange
+                readDataButton.gradientEndColor = UIColor.init(named: "buttonColor")
+                readDataButton.layoutSubviews()
+            }
+        }
+    }
     
     func reloadUnitLabels() {
         var unit = ""
-        if SettingController.thermalUnit == .celsius {
+        if SettingController.settings.thermalUnit == .celsius {
             unit = "°C"
         }
         else {
@@ -204,25 +231,33 @@ class ConfigurationController: UITableViewController, UITextFieldDelegate {
     
     
     override func viewDidLoad() {
+        print("ConfigurationController: viewDidLoad()")
         super.viewDidLoad()
         
         let tap = UITapGestureRecognizer(target: self, action: #selector(UIInputViewController.dismissKeyboard))
         view.addGestureRecognizer(tap)
         reloadUnitLabels()
+        updateReadDataButton()
         updateTextfieldKeyboardTypes()
         updateTextfieldLimits()
     }
     
     override func viewDidAppear(_ animated: Bool) {
+        print("ConfigurationController: viewDidAppear()")
         super.viewDidAppear(animated)
+        updateReadDataButton()
         NotificationCenter.default.addObserver(self, selector: #selector(updateTextFields), name: Notification.Name("ConfigurationDataAvailable"), object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(abortReadWrite), name: Notification.Name("abortReadWrite"), object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(refreshTextFieldAfterWrite(_:)), name: Notification.Name("ConfigurationDataWritten"), object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(updateReadDataButton), name: Notification.Name("LionTronMode"), object: nil)
         if DevicesController.connectionMode == .demo {
             print("demo device")
             NotificationCenter.default.post(name: Notification.Name("unavailableFunctionality"), object: nil)
             writeDataButton.isHidden = true
             readDataButton.isHidden = true
+        }
+        else if !readDataButton.isEnabled {
+            OverviewController.BLEInterface?.pauseTransmission = true
         }
         else {
             OverviewController.BLEInterface?.pauseTransmission = true
@@ -235,9 +270,13 @@ class ConfigurationController: UITableViewController, UITextFieldDelegate {
         OverviewController.BLEInterface?.pauseTransmission = false
         ConfigurationController.requestSendStarted = false
         ConfigurationController.WritingStarted = false
-        OverviewController.BLEInterface?.sendCloseReadWriteModeRequest()
+        if readDataButton.isEnabled {
+            OverviewController.BLEInterface?.sendCloseReadWriteModeRequest()
+        }
         NotificationCenter.default.removeObserver(self)
-        writeDataButton.isHidden = true
+        if !alreadyRead {
+            writeDataButton.isHidden = true
+        }
     }
     
     @objc func dismissKeyboard() {
@@ -286,9 +325,11 @@ class ConfigurationController: UITableViewController, UITextFieldDelegate {
             break
         case cmd_configuration.connectionType.CellFullVoltage.rawValue:
             tfCellFullVoltage.originalText = ConvertToString(cmd_configuration.CellFullVoltage, multiplier: 1)
+            DevicesController.getConnectedDevice()?.settings.cellFullVoltage = cmd_configuration.CellFullVoltage ?? 4200
             break
         case cmd_configuration.connectionType.CellEmptyVoltage.rawValue:
             tfCellEmptyVoltage.originalText = ConvertToString(cmd_configuration.CellEmptyVoltage, multiplier: 1)
+            DevicesController.getConnectedDevice()?.settings.cellEmptyVoltage = cmd_configuration.CellEmptyVoltage ?? 3000
             break
         case cmd_configuration.connectionType.RateDsg.rawValue:
             tfSelfDischargeRate.originalText = ConvertToString(cmd_configuration.RateDsg, divider: 10)
@@ -443,6 +484,8 @@ class ConfigurationController: UITableViewController, UITextFieldDelegate {
             self.tabBarController?.view.isUserInteractionEnabled = true
             progressHUD.indicatorView = JGProgressHUDSuccessIndicatorView()
             progressHUD.dismiss(afterDelay: 0.4, animated: true)
+            alreadyRead = true
+            DevicesController.getConnectedDevice()?.saveDeviceSettings()
             UIView.animate(withDuration: 0.3) {
                 self.writeDataButton.isHidden = false
             }
@@ -463,9 +506,11 @@ class ConfigurationController: UITableViewController, UITextFieldDelegate {
             break
         case cmd_configuration.connectionType.CellFullVoltage.rawValue:
             tfCellFullVoltage.originalText = tfCellFullVoltage.text
+            DevicesController.getConnectedDevice()?.settings.cellFullVoltage = cmd_configuration.CellFullVoltage ?? 4200
             break
         case cmd_configuration.connectionType.CellEmptyVoltage.rawValue:
             tfCellEmptyVoltage.originalText = tfCellEmptyVoltage.text
+            DevicesController.getConnectedDevice()?.settings.cellEmptyVoltage = cmd_configuration.CellEmptyVoltage ?? 3000
             break
         case cmd_configuration.connectionType.RateDsg.rawValue:
             tfSelfDischargeRate.originalText = tfSelfDischargeRate.text
@@ -645,10 +690,10 @@ class ConfigurationController: UITableViewController, UITextFieldDelegate {
         tfBarcode.maxStringLength = 32
         tfNumberOfCells.maxIntValue = 32
         tfNumberOfCells.minIntValue = 3
-        tfTotalBatteryCapacity.maxIntValue = 6553500
+        tfTotalBatteryCapacity.maxIntValue = 655350
         tfTotalBatteryCapacity.minIntValue = 0
         tfTotalBatteryCapacity.multipleOf = 10
-        tfTotalCycleCapacity.maxIntValue = 6553500
+        tfTotalCycleCapacity.maxIntValue = 655350
         tfTotalCycleCapacity.minIntValue = 0
         tfTotalCycleCapacity.multipleOf = 10
         tfSelfDischargeRate.minDoubleValue = 0.0
@@ -677,7 +722,7 @@ class ConfigurationController: UITableViewController, UITextFieldDelegate {
         tfCellOVPRelease.maxIntValue = 4500
         tfCellOVPDelay.minIntValue = 1
         tfCellOVPDelay.maxIntValue = 120
-        tfCellUVPTrigger.minIntValue = 3000
+        tfCellUVPTrigger.minIntValue = 2300
         tfCellUVPTrigger.maxIntValue = 4500
         tfCellUVPRelease.minIntValue = 3000
         tfCellUVPRelease.maxIntValue = 4500
@@ -726,6 +771,9 @@ class ConfigurationController: UITableViewController, UITextFieldDelegate {
     
     
     static func sendNextReadRequest(address: UInt8) {
+        if address == 225 { //MOS Code
+            return
+        }
         if retryCount > 3 {
             NotificationCenter.default.post(name: Notification.Name("abortReadWrite"), object: nil)
             retryCount = 0
@@ -734,7 +782,8 @@ class ConfigurationController: UITableViewController, UITextFieldDelegate {
         if ConfigurationController.remainingReadAddresses.count == 0 {
             ConfigurationController.requestSendStarted = false
             print("ConfigurationController: Finished reading all addresses")
-            cmd_configuration.printConfiguration()
+            DevicesController.getConnectedDevice()?.saveDeviceSettings()
+//            cmd_configuration.printConfiguration()
             return
         }
         if let index = ConfigurationController.remainingReadAddresses.firstIndex(of: address) {
@@ -757,6 +806,9 @@ class ConfigurationController: UITableViewController, UITextFieldDelegate {
     }
     
     static func sendNextWriteCommand(address: UInt8) {
+        if address == 225 { //MOS Code
+            return
+        }
         if retryCount > 3 {
             NotificationCenter.default.post(name: Notification.Name("abortReadWrite"), object: nil)
             retryCount = 0
@@ -767,6 +819,7 @@ class ConfigurationController: UITableViewController, UITextFieldDelegate {
             NotificationCenter.default.post(name: Notification.Name("ConfigurationDataWritten"), object: nil, userInfo: userInfo)
             ConfigurationController.WritingStarted = false
             print("ConfigurationController: Finished writing all addresses")
+            DevicesController.getConnectedDevice()?.saveDeviceSettings()
             return
         }
         for i in 0...ConfigurationController.remainingWriteAddresses.count-1 {
@@ -824,7 +877,7 @@ class ConfigurationController: UITableViewController, UITextFieldDelegate {
             return ""
         }
         let temp: Int32 = Int32(reading!)
-        if SettingController.thermalUnit == .celsius {
+        if SettingController.settings.thermalUnit == .celsius {
             return String(format: "%.0f", Double(temp-2731) / Double(10.0)) //SWIFT WTF
         }
         else {
@@ -833,7 +886,7 @@ class ConfigurationController: UITableViewController, UITextFieldDelegate {
     }
     
     func IntToKelvin(_ value: Int) -> UInt16 {
-        if SettingController.thermalUnit == .celsius {
+        if SettingController.settings.thermalUnit == .celsius {
             let temp = 2731 + (value*10)
             return UInt16(temp)
         }
@@ -912,15 +965,15 @@ class ConfigurationController: UITableViewController, UITextFieldDelegate {
         }
         if tfTotalBatteryCapacity.hasChanged() && !tfTotalBatteryCapacity.hasErrorMessage && !tfTotalBatteryCapacity.isEmpty {
             request.commandByte = 0x10
-            let value = UInt16(tfTotalBatteryCapacity.text ?? "") ?? 0
-            let data = bmsRequest.toUInt8Arr(value: value/10)
+            let value = UInt32(tfTotalBatteryCapacity.text ?? "") ?? 0
+            let data = bmsRequest.toUInt8Arr(value: UInt16(value/10))
             request.dataBytes = [data.0, data.1]
             ConfigurationController.remainingWriteAddresses.append(request.getBytes())
         }
         if tfTotalCycleCapacity.hasChanged() && !tfTotalCycleCapacity.hasErrorMessage && !tfTotalCycleCapacity.isEmpty {
             request.commandByte = 0x11
-            let value = UInt16(tfTotalCycleCapacity.text ?? "") ?? 0
-            let data = bmsRequest.toUInt8Arr(value: value/10)
+            let value = UInt32(tfTotalCycleCapacity.text ?? "") ?? 0
+            let data = bmsRequest.toUInt8Arr(value: UInt16(value/10))
             request.dataBytes = [data.0, data.1]
             ConfigurationController.remainingWriteAddresses.append(request.getBytes())
         }
@@ -1018,36 +1071,36 @@ class ConfigurationController: UITableViewController, UITextFieldDelegate {
         }
         if tfPackOVPTrigger.hasChanged() && !tfPackOVPTrigger.hasErrorMessage && !tfPackOVPTrigger.isEmpty {
             request.commandByte = 0x20
-            let value = UInt16(tfPackOVPTrigger.text ?? "") ?? 0
-            let data = bmsRequest.toUInt8Arr(value: value/10)
+            let value = UInt32(tfPackOVPTrigger.text ?? "") ?? 0
+            let data = bmsRequest.toUInt8Arr(value: UInt16(value/10))
             request.dataBytes = [data.0, data.1]
             ConfigurationController.remainingWriteAddresses.append(request.getBytes())
         }
         if tfPackOVPRelease.hasChanged() && !tfPackOVPRelease.hasErrorMessage && !tfPackOVPRelease.isEmpty {
             request.commandByte = 0x21
-            let value = UInt16(tfPackOVPRelease.text ?? "") ?? 0
-            let data = bmsRequest.toUInt8Arr(value: value/10)
+            let value = UInt32(tfPackOVPRelease.text ?? "") ?? 0
+            let data = bmsRequest.toUInt8Arr(value: UInt16(value/10))
             request.dataBytes = [data.0, data.1]
             ConfigurationController.remainingWriteAddresses.append(request.getBytes())
         }
         if tfPackUVPTrigger.hasChanged() && !tfPackUVPTrigger.hasErrorMessage && !tfPackUVPTrigger.isEmpty {
             request.commandByte = 0x22
-            let value = UInt16(tfPackUVPTrigger.text ?? "") ?? 0
-            let data = bmsRequest.toUInt8Arr(value: value/10)
+            let value = UInt32(tfPackUVPTrigger.text ?? "") ?? 0
+            let data = bmsRequest.toUInt8Arr(value: UInt16(value/10))
             request.dataBytes = [data.0, data.1]
             ConfigurationController.remainingWriteAddresses.append(request.getBytes())
         }
         if tfPackUVPRelease.hasChanged() && !tfPackUVPRelease.hasErrorMessage && !tfPackUVPRelease.isEmpty {
             request.commandByte = 0x23
-            let value = UInt16(tfPackUVPRelease.text ?? "") ?? 0
-            let data = bmsRequest.toUInt8Arr(value: value/10)
+            let value = UInt32(tfPackUVPRelease.text ?? "") ?? 0
+            let data = bmsRequest.toUInt8Arr(value: UInt16(value/10))
             request.dataBytes = [data.0, data.1]
             ConfigurationController.remainingWriteAddresses.append(request.getBytes())
         }
         if tfChargeOCTrigger.hasChanged() && !tfChargeOCTrigger.hasErrorMessage && !tfChargeOCTrigger.isEmpty {
             request.commandByte = 0x28
-            let value = UInt16(tfChargeOCTrigger.text ?? "") ?? 0
-            let data = bmsRequest.toUInt8Arr(value: value/10)
+            let value = UInt32(tfChargeOCTrigger.text ?? "") ?? 0
+            let data = bmsRequest.toUInt8Arr(value: UInt16(value/10))
             request.dataBytes = [data.0, data.1]
             ConfigurationController.remainingWriteAddresses.append(request.getBytes())
         }
@@ -1236,7 +1289,7 @@ class ConfigurationController: UITableViewController, UITextFieldDelegate {
     
     func StringToASCII(text: String) -> [UInt8] {
         if text.count > 0 {
-            guard var data = text.data(using: .ascii) else {
+            guard let data = text.data(using: .ascii) else {
                 return [0]
             }
             var result = [UInt8(data.count)]

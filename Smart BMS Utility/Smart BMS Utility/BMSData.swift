@@ -14,11 +14,11 @@ class BMSData {
     static var lastControlStatus: UInt8?
     
     static func validateChecksum(response: [UInt8] ) -> Bool {
-        if response.count == 0 || response[0] != 0xDD || response[response.count-1] != 0x77 {
+        if response.count <= 5 || response[0] != 0xDD || response[response.count-1] != 0x77 {
             return false
         }
         var checksum: UInt32 = 0x10000
-        for i in 2...response.count-4 {
+        for i in stride(from: 2, through: response.count-4, by: 1) {
             checksum = checksum - UInt32(response[i])
         }
 //        print("Checksum: \(checksum + 1 == convertByteToUInt16(data1: response[response.count-3], data2: response[response.count-2]))")
@@ -32,9 +32,21 @@ class BMSData {
     
     static func dataToBMSReading(bytes: [UInt8]) {
         let data = bytes
+        
         if data[2] == 0x81 || data[2] == 0x80 {
             BMSData.ReadWriteMode = false
         }
+        if (data[1] == 0xE1 || data[1] == 0x00) && data[2] == 0x80 {
+            let device = DevicesController.getConnectedDevice()
+            if device != nil && !(device!.settings.liontronMode ?? false) {
+                device!.settings.liontronMode = true
+                device!.saveDeviceSettings()
+                print("Activated LionTron-Mode")
+                NotificationCenter.default.post(name: Notification.Name("LionTronMode"), object: nil)
+            }
+        }
+        
+        
         if(data.count == 0 || data[0] != 0xDD || data[2] != 0x00 || data[data.count-1] != 0x77 || data[3] != (data.count - 7)) {
             print("Invalid packet received!")
             for i in 0...data.count-1 {
@@ -113,6 +125,10 @@ class BMSData {
 //            print("Recv Discharging: \(cmd_basicInformation.dischargingPort.description)")
 //            print("Recv code: \(data[24])")
             cmd_basicInformation.numberOfCells = data[25]
+            if (DevicesController.getConnectedDevice()?.settings.cellCount ?? 0) != cmd_basicInformation.numberOfCells ?? 0 {
+                DevicesController.getConnectedDevice()?.settings.cellCount = Int(cmd_basicInformation.numberOfCells ?? 0)
+                DevicesController.getConnectedDevice()?.saveDeviceSettings()
+            }
             cmd_basicInformation.numberOfTempSensors = data[26]
 //            printHex(data: Data(data))
             if (cmd_basicInformation.numberOfTempSensors ?? 0) > 0 {
@@ -145,6 +161,9 @@ class BMSData {
                 for i in Int(data[3]/2)...31 {
                     cmd_voltages.voltageOfCell[i] = 0
                 }
+            }
+            if loggingController.shouldLogCurrentEntry() {
+                loggingController.WriteDataLine()
             }
             break
         case 0x10:
@@ -309,7 +328,7 @@ class BMSData {
     
     static func UInt16ToTemp(reading: UInt16) -> Double {
         let temp: Int32 = Int32(reading)
-        if SettingController.thermalUnit == .celsius {
+        if SettingController.settings.thermalUnit == .celsius {
             return Double(temp-2731) / Double(10.0) //SWIFT WTF
         }
         else {
@@ -391,6 +410,22 @@ class BMSData {
     static func generateRequest(command: UInt8) -> [UInt8] {
         let data: [UInt8] = [0xDD, 0xA5, command, 0x00, 0xFF, 0xFF-(command-1), 0x77]
         return data
+    }
+    
+    static func getDischargingCurrent() -> Double {
+        if cmd_basicInformation.current == nil {
+            return 0
+        }
+        let value = min(0, cmd_basicInformation.current!)
+        return Double(-value) / 100.0
+    }
+    
+    static func getChargingCurrent() -> Double {
+        if cmd_basicInformation.current == nil {
+            return 0
+        }
+        let value = max(0, cmd_basicInformation.current!)
+        return Double(value) / 100.0
     }
     
     static func printHex(data: Data) {

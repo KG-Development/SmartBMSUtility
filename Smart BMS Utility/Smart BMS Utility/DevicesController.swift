@@ -17,48 +17,53 @@ class DevicesController: UIViewController, UITableViewDelegate, UITableViewDataS
     
     static var connectedIndex = -1
     
-    var selectedDeviceID: String?
+    static var selectedDeviceID: String?
+    
+    var refreshCtrl = UIRefreshControl()
+    
+    var firstStart = true
     
     override func viewDidLoad() {
         print("DevicesController: viewDidLoad()")
         deviceTable.delegate = self
         deviceTable.dataSource = self
         
+        deviceTable.refreshControl = refreshCtrl
+        refreshCtrl.addTarget(self, action: #selector(refreshData), for: .valueChanged)
         
-//        #if DEBUG
-//        let dev = device()
-//        dev.WiFiAddress = "rasppiathome.myddns.me"
-//        dev.deviceName = "BMS"
-//        dev.type = .wifi
-//        DevicesController.deviceArray.append(dev)
-//        let dev2 = device()
-//        dev2.WiFiAddress = "192.168.0.100"
-//        dev2.deviceName = "BMS local"
-//        dev2.type = .wifi
-//        DevicesController.deviceArray.append(dev2)
-//        #endif
-        
-        
+        OverviewController.BLEInterface = BluetoothInterface()
         NotificationCenter.default.addObserver(self, selector: #selector(reloadData), name: NSNotification.Name("reloadDevices"), object: nil)
     }
     
     override func viewDidAppear(_ animated: Bool) {
         DispatchQueue.main.asyncAfter(deadline: .now()) {
+            SettingController.loadSettings()
             print("DevicesController: viewDidAppear()")
             self.title = "Devices"
-            DevicesController.deviceArray.removeAll()
+            OverviewController.BLEInterface?.initBluetooth()
             DevicesController.connectionMode = .disconnected
-            self.reloadData()
+            DevicesController.selectedDeviceID = nil
             DevicesController.connectedIndex = -1
-            SettingController.loadSettings()
-            
-            if SettingController.useBluetooth {
-                OverviewController.BLEInterface = BluetoothInterface()
-                OverviewController.BLEInterface?.initBluetooth()
+            let device = DevicesController.getConnectedDevice()
+            if device != nil {
+                let peripheral = device?.peripheral
+                if peripheral == nil {
+                    return
+                }
+                OverviewController.BLEInterface?.centralManager.cancelPeripheralConnection(peripheral!)
             }
-            if SettingController.useDemo {
+            if SettingController.settings.useDemo {
                 demoDevice.setupDemoDevice()
+            } else {
+                demoDevice.removeDemoDevice()
             }
+            
+            if !(SettingController.settings.LiontronHidden ?? false) {
+                self.showLionTronWarning()
+            }
+            
+            self.reloadData()
+            self.resetApp()
         }
     }
     
@@ -80,6 +85,26 @@ class DevicesController: UIViewController, UITableViewDelegate, UITableViewDataS
     
     @objc func reloadData() {
         deviceTable.reloadData()
+        print(DevicesController.deviceArray.count)
+        if DevicesController.deviceArray.count > 0 && firstStart {
+            for i in 0...DevicesController.deviceArray.count-1 {
+                if DevicesController.deviceArray[i].settings.autoConnect ?? false {
+                    firstStart = false
+                    print("Autoconnect device found! \(DevicesController.deviceArray[i].settings.deviceName ?? "")")
+                    tableView(deviceTable, didSelectRowAt: IndexPath(row: 0, section: i))
+                    performSegue(withIdentifier: "deviceSegue", sender: nil)
+                }
+            }
+        }
+    }
+    
+    @objc func refreshData() {
+        DevicesController.deviceArray.removeAll()
+        NotificationCenter.default.post(name: Notification.Name("refreshBluetooth"), object: nil)
+        
+        firstStart = true
+        deviceTable.reloadData()
+        refreshCtrl.endRefreshing()
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -97,7 +122,7 @@ class DevicesController: UIViewController, UITableViewDelegate, UITableViewDataS
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "deviceCell", for: indexPath) as! deviceCell
         if DevicesController.deviceArray[indexPath.section].type == device.connectionType.bluetooth {
-            cell.titleLabel.text = DevicesController.deviceArray[indexPath.section].deviceName ?? "Unknown name"
+            cell.titleLabel.text = DevicesController.deviceArray[indexPath.section].settings.deviceName ?? ""
             if cell.titleLabel.text == DevicesController.deviceArray[indexPath.section].peripheral?.name {
                 cell.subtitleLabel.text = ""
             }
@@ -107,7 +132,7 @@ class DevicesController: UIViewController, UITableViewDelegate, UITableViewDataS
             return cell
         }
         else {
-            cell.titleLabel.text = DevicesController.deviceArray[indexPath.section].deviceName
+            cell.titleLabel.text = DevicesController.deviceArray[indexPath.section].settings.deviceName
             return cell
         }
     }
@@ -116,21 +141,18 @@ class DevicesController: UIViewController, UITableViewDelegate, UITableViewDataS
         if DevicesController.deviceArray[indexPath.section].type == device.connectionType.bluetooth && DevicesController.deviceArray[indexPath.section].peripheral != nil {
             OverviewController.BLEInterface?.centralManager.connect(DevicesController.deviceArray[indexPath.section].peripheral!, options: nil)
             DevicesController.connectionMode = .bluetooth
-            if selectedDeviceID != nil || selectedDeviceID != DevicesController.deviceArray[indexPath.section].peripheral?.identifier.uuidString {
-                resetApp()
-            }
-            self.selectedDeviceID = DevicesController.deviceArray[indexPath.section].peripheral?.identifier.uuidString
+            DevicesController.selectedDeviceID = DevicesController.deviceArray[indexPath.section].peripheral?.identifier.uuidString
         }
         else if DevicesController.deviceArray[indexPath.section].type == device.connectionType.demo {
             DevicesController.connectionMode = .demo
         }
+        else {
+            print("ELSE")
+        }
     }
     
     func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
-        if DevicesController.deviceArray[indexPath.section].type == .demo {
-            return false
-        }
-        return true
+        return DevicesController.deviceArray[indexPath.section].type != .demo
     }
     
     
@@ -148,27 +170,21 @@ class DevicesController: UIViewController, UITableViewDelegate, UITableViewDataS
         return -1
     }
     
-    static func getConnectedDevice() -> device {
+    static func getConnectedDevice() -> device? {
         if DevicesController.deviceArray.count > 0 {
             for i in 0...DevicesController.deviceArray.count-1 {
-                if connectionMode == DevicesController.deviceArray[i].type && DevicesController.deviceArray[i].connected {
-                    return (DevicesController.deviceArray[i])
+                if DevicesController.deviceArray[i].type == device.connectionType.demo && connectionMode == .demo {
+                    return DevicesController.deviceArray[i]
+                }
+                if DevicesController.deviceArray[i].getIdentifier() == selectedDeviceID {
+                    return DevicesController.deviceArray[i]
                 }
             }
         }
         
-        return device() //Should not return, hopefully
+        return nil //Should not return, hopefully
     }
     
-    
-    @IBAction func addDevice(_ sender: Any) {
-        let storyBoard : UIStoryboard = UIStoryboard(name: "Main", bundle:nil)
-        let mainNC = storyBoard.instantiateViewController(withIdentifier: "newDevice") as! UINavigationController
-//        mainNC.modalPresentationStyle = .automatic
-//        mainNC.modalTransitionStyle = .coverVertical
-//        self.present(mainNC, animated: true, completion: nil)
-        self.present(mainNC, animated: true, completion: nil)
-    }
     
     @IBAction func settingsPressed(_ sender: Any) {
         
@@ -180,14 +196,28 @@ class DevicesController: UIViewController, UITableViewDelegate, UITableViewDataS
     
     func resetApp() {
         print("DevicesController: resetApp()")
-        OverviewController.peakPower = 0.0
-        OverviewController.peakCurrent = 0.0
-        OverviewController.lowestVoltage = 0.0
-        OverviewController.highestVoltage = 0.0
         GPSController.topSpeed = 0.0
-        GPSController.maxPower = 0.0
         GPSController.currentSpeed = 0.0
         GPSController.efficiency = 0.0
+        OverviewController.retryCount = 0
+        OverviewController.didCheckReadWriteMode = false
+        cmd_basicInformation.totalVoltage = nil
+        cmd_basicInformation.current = nil
+        cmd_basicInformation.residualCapacity = nil
+        cmd_basicInformation.nominalCapacity = nil
+        cmd_basicInformation.cycleLife = nil
+        cmd_basicInformation.productDate = nil
+        cmd_basicInformation.balanceCells = [Bool](repeating: true, count: 32)
+        cmd_basicInformation.protection = protectionStatus()
+        cmd_basicInformation.version = nil
+        cmd_basicInformation.rsoc = nil
+        cmd_basicInformation.controlStatus = nil
+        cmd_basicInformation.numberOfCells = nil
+        cmd_basicInformation.numberOfTempSensors = nil
+        cmd_basicInformation.temperatureReadings = [Double](repeating: 0, count: 8)
+        cmd_basicInformation.chargingPort = true
+        cmd_basicInformation.dischargingPort = true
+        cmd_voltages.voltageOfCell = [UInt16](repeating: 0, count: 32)
         cmd_configuration.FullCapacity = nil
         cmd_configuration.CycleCapacity = nil
         cmd_configuration.CellFullVoltage = nil
@@ -244,5 +274,14 @@ class DevicesController: UIViewController, UITableViewDelegate, UITableViewDataS
         cmd_configuration.SerialNumber = nil
         cmd_configuration.Model = nil
         cmd_configuration.Barcode = nil
+    }
+    
+    func showLionTronWarning() {
+        let alert = UIAlertController(title: "Warning: LionTron batteries are not fully supported!", message: "This app has some issues communicating with LionTron batteries. Do not use the charging and discharging on/off buttons. The configuration view will also be useless for LionTron users.", preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "Understood", style: .cancel, handler: { (action) in
+            SettingController.settings.LiontronHidden = true
+            fileController.saveAppSettings()
+        }))
+        self.present(alert, animated: true, completion: nil)
     }
 }

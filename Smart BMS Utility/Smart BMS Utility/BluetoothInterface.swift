@@ -22,6 +22,7 @@ class BluetoothInterface: NSObject, CBCentralManagerDelegate, CBPeripheralDelega
         print("BluetoothInterface: initBluetooth()")
         NotificationCenter.default.removeObserver(self)
         NotificationCenter.default.addObserver(self, selector: #selector(sendRequest), name: NSNotification.Name("BluetoothSendNeeded"), object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(refreshBluetooth), name: NSNotification.Name("refreshBluetooth"), object: nil)
         self.centralManager = CBCentralManager(delegate: self, queue: nil)
     }
     
@@ -37,7 +38,6 @@ class BluetoothInterface: NSObject, CBCentralManagerDelegate, CBPeripheralDelega
         case .unauthorized:
             break
         case .poweredOff:
-            //TODO: Notifiy user to enable bluetooth
             break
         case .poweredOn:
             centralManager.scanForPeripherals(withServices: [serviceUUID])
@@ -52,25 +52,21 @@ class BluetoothInterface: NSObject, CBCentralManagerDelegate, CBPeripheralDelega
     func centralManager(_ central: CBCentralManager, didDiscover peripheral: CBPeripheral, advertisementData: [String : Any], rssi RSSI: NSNumber) {
         let bluetoothDevice = device()
         
-//        print(peripheral.identifier)
+        bluetoothDevice.peripheral = peripheral
+        bluetoothDevice.peripheral?.delegate = self
+        bluetoothDevice.loadDeviceSettings()
+        bluetoothDevice.settings.dongleName = peripheral.name
+        bluetoothDevice.type = .bluetooth
         
-        if DevicesController.indexFromID(id: peripheral.identifier) == -1 {
-            bluetoothDevice.peripheral = peripheral
-            bluetoothDevice.peripheral?.delegate = self
-            
-            let deviceName = UserDefaults.standard.string(forKey: peripheral.identifier.description + ":deviceName")
-            if deviceName == nil {
-                bluetoothDevice.deviceName = peripheral.name
-            }
-            else {
-                bluetoothDevice.deviceName = deviceName
-            }
-//            if peripheral.identifier == UUID(uuidString: "D6AA3825-EF12-2A69-85E1-7E6FF6D527F4") {
-//                bluetoothDevice.deviceName = "17S"
-//            }
-            bluetoothDevice.type = .bluetooth
+        let index = DevicesController.indexFromID(id: peripheral.identifier)
+        if index == -1 {
             DevicesController.deviceArray.append(bluetoothDevice)
             NotificationCenter.default.post(name: NSNotification.Name("reloadDevices"), object: nil)
+            fileController.createDeviceDirectory(identifier: peripheral.identifier.uuidString)
+        } else {
+            DevicesController.deviceArray[index] = bluetoothDevice
+            NotificationCenter.default.post(name: NSNotification.Name("reloadDevices"), object: nil)
+            fileController.createDeviceDirectory(identifier: peripheral.identifier.uuidString)
         }
         
     }
@@ -103,7 +99,6 @@ class BluetoothInterface: NSObject, CBCentralManagerDelegate, CBPeripheralDelega
         if (peripheral.services?.count ?? 0) > 0 {
             for i in 0...(peripheral.services?.count ?? 0)-1 {
                 if peripheral.services?[i].uuid == CBUUID(string: "FF00") {
-                    print("BluetoothInterface: Found FF00")
                     let index = DevicesController.indexFromID(id: peripheral.identifier)
                     if index == -1 {
                         print("BluetoothInterface: Did not find correct index for \(peripheral.identifier)")
@@ -147,7 +142,6 @@ class BluetoothInterface: NSObject, CBCentralManagerDelegate, CBPeripheralDelega
     }
     
     func peripheral(_ peripheral: CBPeripheral, didUpdateNotificationStateFor characteristic: CBCharacteristic, error: Error?) {
-        print("BluetoothInterface: \(characteristic.uuid) updated notifying to \(characteristic.isNotifying)")
         if characteristic.isNotifying {
             //peripheral.writeValue(Data(data), for: bmsTXCharacteristic!, type: .withoutResponse)
         }
@@ -179,6 +173,10 @@ class BluetoothInterface: NSObject, CBCentralManagerDelegate, CBPeripheralDelega
             DevicesController.deviceArray[index].waitingForMultiPart = false
         }
         
+//        if !DevicesController.deviceArray[index].waitingForMultiPart {
+//            print("<<< \(printHex(data: tempData))")
+//        }
+        
         if tempData.count == 7 && BMSData.isWriteAnswer(response: [UInt8](tempData)) {
             if tempData[1] == 0x00 {
 //                print("Enabled ReadWriteMode")
@@ -192,10 +190,13 @@ class BluetoothInterface: NSObject, CBCentralManagerDelegate, CBPeripheralDelega
                 tempData.removeAll()
                 return
             }
+            else if tempData[1] == 0xE1 {
+                OverviewController.waitingForMosStatus = false
+            }
 //            print(printHex(data: tempData))
             if tempData[2] == 0x80 || tempData[2] == 0x81 {
                 BMSData.ReadWriteMode = false
-                ConfigurationController.sendNextWriteCommand(address: 0)
+//                ConfigurationController.sendNextWriteCommand(address: 0)
             }
             else {
                 ConfigurationController.sendNextWriteCommand(address: tempData[1])
@@ -220,9 +221,11 @@ class BluetoothInterface: NSObject, CBCentralManagerDelegate, CBPeripheralDelega
             print("BluetoothInterface: Did not find correct index for \(peripheral.identifier)")
             return
         }
-        
+        print("BluetoothInterface: Disconnected from \(peripheral.identifier)")
         DevicesController.deviceArray[index].connected = false
-        if DevicesController.deviceArray[index].peripheral != nil {
+        DevicesController.deviceArray[index].selected = false
+        if DevicesController.deviceArray[index].peripheral != nil && DevicesController.connectionMode == .bluetooth {
+            print("BluetoothInterface: reconnecting to \(peripheral.identifier)")
             centralManager.connect(DevicesController.deviceArray[index].peripheral!, options: nil)
         }
         NotificationCenter.default.post(name: Notification.Name("disconnectUpdate"), object: nil)
@@ -277,26 +280,38 @@ class BluetoothInterface: NSObject, CBCentralManagerDelegate, CBPeripheralDelega
     
     @objc func sendRequest() {
         let device = DevicesController.getConnectedDevice()
-        if device.connected && device.peripheral?.state == .connected && device.TXcharacteristic != nil && device.RXcharacteristic != nil {
+        if device == nil {
+            return
+        }
+        if device!.connected && device!.peripheral?.state == .connected && device!.TXcharacteristic != nil && device!.RXcharacteristic != nil {
 //            print("BluetoothInterface: sendRequest() \(Date())")
             DispatchQueue.main.asyncAfter(deadline: .now()) {
                 let data = BMSData.generateRequest(command: 0x03)
-                device.peripheral!.writeValue(Data(data), for: device.TXcharacteristic!, type: .withoutResponse)
+                device!.peripheral!.writeValue(Data(data), for: device!.TXcharacteristic!, type: .withoutResponse)
             }
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                 let data = BMSData.generateRequest(command: 0x04)
-                device.peripheral!.writeValue(Data(data), for: device.TXcharacteristic!, type: .withoutResponse)
+                device!.peripheral!.writeValue(Data(data), for: device!.TXcharacteristic!, type: .withoutResponse)
             }
         }
     }
     
+    @objc func refreshBluetooth() {
+        centralManager.stopScan()
+        centralManager.scanForPeripherals(withServices: [serviceUUID])
+    }
+    
+    
     func sendReadRequest(address: UInt8) {
         let device = DevicesController.getConnectedDevice()
-        if device.connected && device.peripheral?.state == .connected && device.TXcharacteristic != nil && device.RXcharacteristic != nil {
+        if device == nil {
+            return
+        }
+        if device!.connected && device!.peripheral?.state == .connected && device!.TXcharacteristic != nil && device!.RXcharacteristic != nil {
             DispatchQueue.main.asyncAfter(deadline: .now()) {
                 if BMSData.ReadWriteMode {
                     let data = BMSData.generateRequest(command: address)
-                    device.peripheral!.writeValue(Data(data), for: device.TXcharacteristic!, type: .withoutResponse)
+                    device!.peripheral!.writeValue(Data(data), for: device!.TXcharacteristic!, type: .withoutResponse)
                 }
                 else {
                     print("BluetoothInterface: Could not write because we are not in ReadWriteMode. Trying to open ReadWriteMode...")
@@ -317,8 +332,12 @@ class BluetoothInterface: NSObject, CBCentralManagerDelegate, CBPeripheralDelega
     
     func sendCustomRequest(data: [UInt8]) {
         let device = DevicesController.getConnectedDevice()
-        if device.connected && device.peripheral!.state == .connected && device.TXcharacteristic != nil && device.RXcharacteristic != nil {
-            device.peripheral!.writeValue(Data(data), for: device.TXcharacteristic!, type: .withoutResponse)
+        if device == nil {
+            return
+        }
+        if device!.connected && device!.peripheral!.state == .connected && device!.TXcharacteristic != nil && device!.RXcharacteristic != nil {
+            device!.peripheral!.writeValue(Data(data), for: device!.TXcharacteristic!, type: .withoutResponse)
+            print("BluetoothInterface: \(printHex(data: Data(data)))")
         }
     }
     

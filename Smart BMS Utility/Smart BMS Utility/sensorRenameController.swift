@@ -15,11 +15,6 @@ class sensorRenameController: UITableViewController {
         self.tableView.dataSource = self
     }
     
-    override func viewWillDisappear(_ animated: Bool) {
-        
-//        UserDefaults.standard.set( , forKey: "com.nearix.Smart-BMS-Utility:\(DevicesController.getConnectedDevice().getIdentifier()):\(index)") ?? "Temperature \(index+1)"
-    }
-    
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "sensorRenameCell", for: indexPath) as! sensorRenameCell
         cell.index = indexPath.row
@@ -30,8 +25,12 @@ class sensorRenameController: UITableViewController {
         return cell
     }
     
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        DevicesController.getConnectedDevice()?.saveDeviceSettings()
+    }
+    
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        print(Int(cmd_basicInformation.numberOfTempSensors ?? 0))
         return Int(cmd_basicInformation.numberOfTempSensors ?? 0)
     }
     
@@ -40,7 +39,7 @@ class sensorRenameController: UITableViewController {
     }
     
     func returnTextFieldName(index: Int) -> String {
-        return UserDefaults.standard.string(forKey: "com.nearix.Smart-BMS-Utility:\(DevicesController.getConnectedDevice().getIdentifier()):\(index)") ?? "Temperature \(index+1)"
+        return DevicesController.getConnectedDevice()?.settings.getSensorName(index: index) ?? "Temperature \(index+1)"
     }
     
 }

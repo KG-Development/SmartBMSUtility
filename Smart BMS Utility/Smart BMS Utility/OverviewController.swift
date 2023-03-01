@@ -13,13 +13,16 @@ import LGButton
 class OverviewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
     
     
-    let onColors: [UIColor] = [UIColor(red: 0.395, green: 0.711, blue: 0.0, alpha: 0.85), UIColor(red: 0.042, green: 0.54, blue: 0.0, alpha: 0.85)]
-    let offColors: [UIColor] = [UIColor(red: 1, green: 0.455, blue: 0.0, alpha: 0.85), .systemRed]
+    static let onColors: [UIColor] = [UIColor(red: 0.395, green: 0.711, blue: 0.0, alpha: 0.85), UIColor(red: 0.042, green: 0.54, blue: 0.0, alpha: 0.85)]
+    static let offColors: [UIColor] = [UIColor(red: 1, green: 0.455, blue: 0.0, alpha: 0.85), .systemRed]
+    static let disabledColors: [UIColor] = [.gray, .systemGray]
     
     static var notificationQueue: NotificationBannerQueue!
     static var BLEInterface: BluetoothInterface?
     
     static var notificationManager = NotificationController()
+    
+    static var didCheckReadWriteMode = false
     
     @IBOutlet weak var batteryVoltageLabel: UILabel!
     @IBOutlet weak var batteryPowerLabel: UILabel!
@@ -27,20 +30,16 @@ class OverviewController: UIViewController, UITableViewDelegate, UITableViewData
     @IBOutlet weak var batteryCapacityLabel: UILabel!
     
     @IBOutlet weak var ChargingButton: LGButton!
-    var chargingEnabled = true
     @IBOutlet weak var DischargingButton: LGButton!
+    var chargingEnabled = true
     var dischargingEnabled = true
     var didLoadButtons = false
     
+    static var retryCount = 0
     
     @IBOutlet weak var detailTableView: UITableView!
     
     @IBOutlet weak var progressBar: TYProgressBar!
-    
-    static var peakPower = 0.0
-    static var peakCurrent = 0.0
-    static var lowestVoltage = 0.0
-    static var highestVoltage = 0.0
     
     static var waitingForMosStatus = false
     var lastMosWriteReceived = Date().millisecondsSince1970 {
@@ -48,6 +47,7 @@ class OverviewController: UIViewController, UITableViewDelegate, UITableViewData
             DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
                 if Date().millisecondsSince1970 - self.lastMosWriteReceived > 1400 && OverviewController.waitingForMosStatus {
                     print("Re-updating MOS status!...")
+                    OverviewController.retryCount += 1
                     self.sendMosStatus()
                 }
             }
@@ -73,15 +73,15 @@ class OverviewController: UIViewController, UITableViewDelegate, UITableViewData
     }
     
     override func viewDidAppear(_ animated: Bool) {
-
+        
         NotificationCenter.default.addObserver(self, selector: #selector(dataAvailable), name: Notification.Name("OverviewDataAvailable"), object: nil)
-//        if OverviewController.timer != nil {
-//            return
-//        }
-//        if !OverviewController.timer!.isValid {
-//            print("Timer invalid... recreating...")
-//            OverviewController.timer = Timer.scheduledTimer(timeInterval: TimeInterval(Double(SettingController.refreshTime) / 1000.0), target: self, selector: #selector(sendPacketNotification), userInfo: nil, repeats: true)
-//        }
+        //        if OverviewController.timer != nil {
+        //            return
+        //        }
+        //        if !OverviewController.timer!.isValid {
+        //            print("Timer invalid... recreating...")
+        //            OverviewController.timer = Timer.scheduledTimer(timeInterval: TimeInterval(Double(SettingController.refreshTime) / 1000.0), target: self, selector: #selector(sendPacketNotification), userInfo: nil, repeats: true)
+        //        }
     }
     
     override func viewDidDisappear(_ animated: Bool) {
@@ -99,7 +99,8 @@ class OverviewController: UIViewController, UITableViewDelegate, UITableViewData
     }
     
     @objc func dataAvailable() {
-        if !didLoadButtons {
+        testWriteMode()
+        if (cmd_basicInformation.numberOfCells ?? 0) > 0 && !didLoadButtons {
             dischargingEnabled = cmd_basicInformation.dischargingPort
             chargingEnabled = cmd_basicInformation.chargingPort
             didLoadButtons = true
@@ -120,14 +121,17 @@ class OverviewController: UIViewController, UITableViewDelegate, UITableViewData
                 self.progressBar.gradients = [.green, UIColor(red: 0.0, green: 1.0, blue: 0.45, alpha: 1.0)]
             }
         }
-        
+        let device = DevicesController.getConnectedDevice()
+        if device == nil {
+            return
+        }
         batteryVoltageLabel.text = BMSData.convertToString(value: cmd_basicInformation.totalVoltage ?? 0) + " V"
         let power = abs(Double(Double(cmd_basicInformation.current ?? 0)/100) * Double(Double(cmd_basicInformation.totalVoltage ?? 0)/100))
-        if(power > OverviewController.peakPower) {
-            OverviewController.peakPower = power
+        if(power > device!.peakPower) {
+            device!.peakPower = power
         }
-        if(abs(Double(cmd_basicInformation.current ?? 0)) / Double(100) > OverviewController.peakCurrent) {
-            OverviewController.peakCurrent = abs(Double(cmd_basicInformation.current ?? 0)) / Double(100)
+        if(abs(Double(cmd_basicInformation.current ?? 0)) / Double(100) > device!.peakCurrent) {
+            device!.peakCurrent = abs(Double(cmd_basicInformation.current ?? 0)) / Double(100)
         }
         batteryPowerLabel.text = String(format: "%.0f", power) + " W"
         batteryCurrentLabel.text = String(format: "%.2f", Double(cmd_basicInformation.current ?? 0) / 100.0) + " A"
@@ -173,12 +177,13 @@ class OverviewController: UIViewController, UITableViewDelegate, UITableViewData
             }
             return returnString
         }
-        else {
+        else if time >= 0.0 {
             let minuteRemainder = time.truncatingRemainder(dividingBy: 1.0) * 60
             return String(format: "%.0f", round(minuteRemainder)) + "min"
         }
+        return "unknown"
     }
-
+    
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if section == 0 {
@@ -192,6 +197,7 @@ class OverviewController: UIViewController, UITableViewDelegate, UITableViewData
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         if indexPath.section == 0 {
             let cell = tableView.dequeueReusableCell(withIdentifier: "informationCell", for: indexPath) as! detailCell
+            let device = DevicesController.getConnectedDevice()!
             
             switch indexPath.row {
             case 0:
@@ -204,28 +210,28 @@ class OverviewController: UIViewController, UITableViewDelegate, UITableViewData
                 break
             case 2:
                 cell.descriptionLabel.text = "Peak amperage:"
-                cell.valueLabel.text = String(format: "%.2f", OverviewController.peakCurrent) + " A"
+                cell.valueLabel.text = String(format: "%.2f", device.peakCurrent) + " A"
                 break
             case 3:
                 cell.descriptionLabel.text = "Peak power:"
-                cell.valueLabel.text = String(format: "%.0f", OverviewController.peakPower) + " W"
+                cell.valueLabel.text = String(format: "%.0f", device.peakPower) + " W"
                 break
             case 4:
-                if OverviewController.lowestVoltage == 0.0 {
-                    OverviewController.lowestVoltage = Double(Double(cmd_basicInformation.totalVoltage ?? 0)/100)
+                if device.lowestVoltage == 0.0 {
+                    device.lowestVoltage = Double(Double(cmd_basicInformation.totalVoltage ?? 0)/100)
                 }
                 if Double(Double(cmd_basicInformation.totalVoltage ?? 0)/100) > 0.0 {
-                    OverviewController.lowestVoltage = min(OverviewController.lowestVoltage, Double(Double(cmd_basicInformation.totalVoltage ?? 0)/100))
+                    device.lowestVoltage = min(device.lowestVoltage, Double(Double(cmd_basicInformation.totalVoltage ?? 0)/100))
                 }
                 
                 cell.descriptionLabel.text = "Lowest voltage:"
-                cell.valueLabel.text = String(format: "%.2f", OverviewController.lowestVoltage) + " V"
+                cell.valueLabel.text = String(format: "%.2f", device.lowestVoltage) + " V"
                 break
             case 5:
-                OverviewController.highestVoltage = max(OverviewController.highestVoltage, Double(Double(cmd_basicInformation.totalVoltage ?? 0)/100))
+                device.highestVoltage = max(device.highestVoltage, Double(Double(cmd_basicInformation.totalVoltage ?? 0)/100))
                 
                 cell.descriptionLabel.text = "Highest voltage:"
-                cell.valueLabel.text = String(format: "%.2f", OverviewController.highestVoltage) + " V"
+                cell.valueLabel.text = String(format: "%.2f", device.highestVoltage) + " V"
                 break
             case 6:
                 let current = BMSData.returnAverage()
@@ -237,7 +243,8 @@ class OverviewController: UIViewController, UITableViewDelegate, UITableViewData
                 }
                 else if current > 0 {
                     cell.descriptionLabel.text = "Remaining chargetime:"
-                    let remainingTime = Double((cmd_basicInformation.nominalCapacity ?? 0) - (cmd_basicInformation.residualCapacity ?? 0)) / Double(current)
+                    let chargingCapacity = Int64(cmd_basicInformation.nominalCapacity ?? 0) - Int64(cmd_basicInformation.residualCapacity ?? 0)
+                    let remainingTime = Double(chargingCapacity) / Double(current)
                     let remainingTimeString = doubleToRemainingTime(time: remainingTime*0.9)
                     cell.valueLabel.text = remainingTimeString
                 }
@@ -248,15 +255,16 @@ class OverviewController: UIViewController, UITableViewDelegate, UITableViewData
                     cell.valueLabel.text = remainingTimeString
                 }
             default:
-                let identifier = DevicesController.getConnectedDevice().getIdentifier()
-                if identifier != "" {
-                    let description = UserDefaults.standard.string(forKey: "com.nearix.Smart-BMS-Utility:\(identifier):\(indexPath.row-7)") ?? "Temperature \(indexPath.row-6)"
-                    cell.descriptionLabel.text = description + ":"
-                }
-                else {
+                let device = DevicesController.getConnectedDevice()
+                if device == nil {
                     cell.descriptionLabel.text = "Temperature \(indexPath.row-6):"
                 }
-                let temperatureUnit = (SettingController.thermalUnit == .celsius) ? "C" : "F"
+                else {
+                    let description = DevicesController.getConnectedDevice()!.settings.getSensorName(index: indexPath.row-7) ?? "Temperature \(indexPath.row-6)"
+                    
+                    cell.descriptionLabel.text = description + ":"
+                }
+                let temperatureUnit = (SettingController.settings.thermalUnit == .celsius) ? "C" : "F"
                 cell.valueLabel.text = String(format: "%.1f", cmd_basicInformation.temperatureReadings[indexPath.row-7]) + "°" + temperatureUnit
             }
             return cell
@@ -269,17 +277,17 @@ class OverviewController: UIViewController, UITableViewDelegate, UITableViewData
             let in_max = Float(cmd_configuration.CellFullVoltage ?? 4200) / 1000.0
             cell.progressView.progress = self.map(x: Float(cmd_voltages.voltageOfCell[indexPath.row]) / 1000.0, in_min: in_min, in_max: in_max, out_min: 0.0, out_max: 1.0)
             
-            UIView.animate(withDuration: Double((SettingController.refreshTime / 1000)) * 0.35) {
+            UIView.animate(withDuration: Double((SettingController.settings.refreshTime / 1000)) * 0.35) {
                 cell.balancingImage.alpha = (cmd_basicInformation.balanceCells[indexPath.row] ? CGFloat(1.0) : CGFloat(0.0))
             }
             
             #if targetEnvironment(macCatalyst)
-                if self.view.bounds.width > 900 {
-                    cell.voltageWidthConstraint.constant = 500
-                }
-                else {
-                    cell.voltageWidthConstraint.constant = self.view.bounds.width - 400
-                }
+            if self.view.bounds.width > 900 {
+                cell.voltageWidthConstraint.constant = 500
+            }
+            else {
+                cell.voltageWidthConstraint.constant = self.view.bounds.width - 400
+            }
             #else
             #endif
             
@@ -300,7 +308,7 @@ class OverviewController: UIViewController, UITableViewDelegate, UITableViewData
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         #if targetEnvironment(macCatalyst)
-            return 36
+        return 36
         #endif
         return 28
     }
@@ -321,13 +329,13 @@ class OverviewController: UIViewController, UITableViewDelegate, UITableViewData
     func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
         switch section {
         case 1:
-            return "Cellvoltages"
+            return "Cellseries voltages"
         default:
             return ""
         }
     }
     @IBAction func chargingPressed(_ sender: LGButton) {
-        print("Togglig charging")
+        OverviewController.retryCount = 0
         chargingEnabled = !chargingEnabled
         sender.isLoading = true
         OverviewController.waitingForMosStatus = true
@@ -337,7 +345,7 @@ class OverviewController: UIViewController, UITableViewDelegate, UITableViewData
     }
     
     @IBAction func dischargingPressed(_ sender: LGButton) {
-        print("Togglig discharging")
+        OverviewController.retryCount = 0
         dischargingEnabled = !dischargingEnabled
         sender.isLoading = true
         OverviewController.waitingForMosStatus = true
@@ -354,47 +362,84 @@ class OverviewController: UIViewController, UITableViewDelegate, UITableViewData
         if dischargingEnabled {
             mosCode -= 2
         }
-//        print("\tSend Charging:    \(chargingEnabled.description)")
-//        print("\tSend Discharging: \(dischargingEnabled.description)")
-//        print("\tmosCode: \(mosCode)")
-        OverviewController.BLEInterface?.sendCustomRequest(data: [0xDD, 0x5A, 0xE1, 0x02, 0x00, mosCode, 0xFF, 0x1D - mosCode, 0x77])
+        if OverviewController.retryCount <= 3 {
+//            print("sending mosCode \(mosCode), chargingEnabled: \(chargingEnabled), dischargingEnabled: \(dischargingEnabled)")
+            OverviewController.BLEInterface?.sendCustomRequest(data: [0xDD, 0x5A, 0xE1, 0x02, 0x00, mosCode, 0xFF, 0x1D - mosCode, 0x77])
+        }
+        else {
+            OverviewController.waitingForMosStatus = false
+            DischargingButton.isLoading = false
+            ChargingButton.isLoading = false
+        }
     }
     
     func updateButtons() {
-        
-        if chargingEnabled == cmd_basicInformation.chargingPort {
-            ChargingButton.isLoading = false
+        let device = DevicesController.getConnectedDevice()
+        if device != nil {
+            if device!.settings.liontronMode ?? false {
+                DischargingButton.isEnabled = false
+                DischargingButton.isLoading = false
+                DischargingButton.gradientRotation = 45
+                DischargingButton.gradientHorizontal = false
+                DischargingButton.gradientStartColor = OverviewController.disabledColors[0]
+                DischargingButton.gradientEndColor = OverviewController.disabledColors[1]
+                ChargingButton.isLoading = false
+                ChargingButton.isEnabled = false
+                ChargingButton.gradientRotation = 45
+                ChargingButton.gradientHorizontal = false
+                ChargingButton.gradientStartColor = OverviewController.disabledColors[0]
+                ChargingButton.gradientEndColor = OverviewController.disabledColors[1]
+            }
+            else {
+                if chargingEnabled == cmd_basicInformation.chargingPort {
+                    ChargingButton.isLoading = false
+                }
+                if dischargingEnabled == cmd_basicInformation.dischargingPort {
+                    DischargingButton.isLoading = false
+                }
+                //        print("OverviewController: updateButtons()")
+                ChargingButton.gradientStartColor = nil
+                ChargingButton.gradientEndColor = nil
+                ChargingButton.gradientRotation = 45
+                ChargingButton.gradientHorizontal = false
+                DischargingButton.gradientStartColor = nil
+                DischargingButton.gradientEndColor = nil
+                DischargingButton.gradientRotation = 45
+                DischargingButton.gradientHorizontal = false
+                
+                
+                if cmd_basicInformation.chargingPort {
+                    ChargingButton.gradientStartColor = OverviewController.onColors[0]
+                    ChargingButton.gradientEndColor = OverviewController.onColors[1]
+                }
+                else {
+                    ChargingButton.gradientStartColor = OverviewController.offColors[0]
+                    ChargingButton.gradientEndColor = OverviewController.offColors[1]
+                }
+                
+                if cmd_basicInformation.dischargingPort {
+                    DischargingButton.gradientStartColor = OverviewController.onColors[0]
+                    DischargingButton.gradientEndColor = OverviewController.onColors[1]
+                }
+                else {
+                    DischargingButton.gradientStartColor = OverviewController.offColors[0]
+                    DischargingButton.gradientEndColor = OverviewController.offColors[1]
+                }
+            }
         }
-        if dischargingEnabled == cmd_basicInformation.dischargingPort {
-            DischargingButton.isLoading = false
-        }
-//        print("OverviewController: updateButtons()")
-        ChargingButton.gradientStartColor = nil
-        ChargingButton.gradientEndColor = nil
-        ChargingButton.gradientRotation = 45
-        ChargingButton.gradientHorizontal = false
-        DischargingButton.gradientStartColor = nil
-        DischargingButton.gradientEndColor = nil
-        DischargingButton.gradientRotation = 45
-        DischargingButton.gradientHorizontal = false
-        
-        
-        if cmd_basicInformation.chargingPort {
-            ChargingButton.gradientStartColor = onColors[0]
-            ChargingButton.gradientEndColor = onColors[1]
-        }
-        else {
-            ChargingButton.gradientStartColor = offColors[0]
-            ChargingButton.gradientEndColor = offColors[1]
-        }
-        
-        if cmd_basicInformation.dischargingPort {
-            DischargingButton.gradientStartColor = onColors[0]
-            DischargingButton.gradientEndColor = onColors[1]
-        }
-        else {
-            DischargingButton.gradientStartColor = offColors[0]
-            DischargingButton.gradientEndColor = offColors[1]
+    }
+    
+    
+    func testWriteMode() {
+        let device = DevicesController.getConnectedDevice()
+        if device != nil && !(device!.settings.liontronMode ?? false) && !OverviewController.didCheckReadWriteMode {
+            OverviewController.didCheckReadWriteMode = true
+            DispatchQueue.main.asyncAfter(deadline: .now() + 3.5) {
+                OverviewController.BLEInterface?.sendOpenReadWriteModeRequest()
+            }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 4.0) {
+                OverviewController.BLEInterface?.sendCloseReadWriteModeRequest()
+            }
         }
     }
 }

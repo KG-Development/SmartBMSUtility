@@ -28,7 +28,6 @@ class GPSController: UIViewController, CLLocationManagerDelegate, UITableViewDel
     var authenticated = false
     
     static var topSpeed = 0.0 //km/h or mph
-    static var maxPower = 0.0 //W
     static var currentSpeed = 0.0 //m/s
     static var efficiency = 0.0 //Wh/km or Wh/mi
     
@@ -38,28 +37,28 @@ class GPSController: UIViewController, CLLocationManagerDelegate, UITableViewDel
         efficiencyTableView.allowsSelection = false
         print("GPSController: viewDidLoad()")
         locationManager.delegate = self
-        locationManager.requestWhenInUseAuthorization()
-        locationManager.desiredAccuracy = SettingController.gpsAccuracy
+        if DevicesController.getConnectedDevice()?.settings.gpsLoggingEnabled ?? false {
+            locationManager.requestAlwaysAuthorization()
+        }
+        else {
+            locationManager.requestWhenInUseAuthorization()
+        }
+        locationManager.desiredAccuracy = SettingController.settings.gpsAccuracy
         started = true
         locationManager.startUpdatingLocation()
-        if #available(iOS 14.0, *) {
-            print(locationManager.authorizationStatus)
-        }
     }
     
     override func viewWillAppear(_ animated: Bool) {
         self.title = "GPS"
         print("GPSController: viewWillAppear()")
         if started {
-            print("Starting updates...")
             locationManager.startUpdatingLocation()
         }
-        speedProgressBar.unitString = (SettingController.distanceUnit == SettingController.distanceEnum.kilometers) ? "km/h" : "mph"
+        speedProgressBar.unitString = (SettingController.settings.distanceUnit == .kilometers) ? "km/h" : "mph"
     }
     
     override func viewWillDisappear(_ animated: Bool) {
         print("GPSController: viewWillDisappear()")
-//        print("Stopping updates...")
         locationManager.stopUpdatingLocation()
     }
     
@@ -72,8 +71,9 @@ class GPSController: UIViewController, CLLocationManagerDelegate, UITableViewDel
     }
     
     func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
-        print(status)
+//        print(status)
         authenticated = status == .authorizedAlways || status == .authorizedWhenInUse
+        print(authenticated)
     }
     
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
@@ -91,29 +91,22 @@ class GPSController: UIViewController, CLLocationManagerDelegate, UITableViewDel
                 return
             }
             GPSController.topSpeed = max(GPSController.topSpeed, speed)
-            if SettingController.distanceUnit == .kilometers {
+            if SettingController.settings.distanceUnit == .kilometers {
                 GPSController.currentSpeed = round(speed * 3.6)
             }
             else {
                 GPSController.currentSpeed = round(speed * 2.23694)
             }
             
-            let power = Double((BMSData.returnAverage())) / 100.0 * Double(cmd_basicInformation.totalVoltage ?? 0) / 100.0
-            if (Double(BMSData.returnAverage())) > 0.0 {
-                GPSController.maxPower = max(GPSController.maxPower, power)
-//                print(maxPower)
-            }
-            if (Double(BMSData.returnAverage())) < 0.0 {
-                GPSController.maxPower = max(GPSController.maxPower, power)
-            }
+            let power = Double((-BMSData.returnAverage())) / 100.0 * Double(cmd_basicInformation.totalVoltage ?? 0) / 100.0
             if GPSController.currentSpeed > 0.0 {
                 GPSController.efficiency = power/GPSController.currentSpeed
             }
             else {
                 GPSController.efficiency = 0.0
             }
-            self.speedProgressBar.maxValue = CGFloat((SettingController.distanceUnit == .kilometers) ? GPSController.topSpeed*3.6 : GPSController.topSpeed*2.23694)
-            UIView.animate(withDuration: Double((SettingController.refreshTime / 1000)) * 0.8) {
+            self.speedProgressBar.maxValue = CGFloat((SettingController.settings.distanceUnit == .kilometers) ? GPSController.topSpeed*3.6 : GPSController.topSpeed*2.23694)
+            UIView.animate(withDuration: Double((SettingController.settings.refreshTime / 1000)) * 0.8) {
                 self.speedProgressBar.value = CGFloat(GPSController.currentSpeed)
             }
             efficiencyTableView.reloadData()
@@ -133,7 +126,7 @@ class GPSController: UIViewController, CLLocationManagerDelegate, UITableViewDel
         switch indexPath.row {
         case 0:
             cell.descriptionLabel.text = "Top speed:"
-            cell.valueLabel.text = String(format: "%.0f", (SettingController.distanceUnit == .kilometers) ? GPSController.topSpeed*3.6 : GPSController.topSpeed*2.23694) + ((SettingController.distanceUnit == SettingController.distanceEnum.kilometers) ? " km/h" : " mph")
+            cell.valueLabel.text = String(format: "%.0f", (SettingController.settings.distanceUnit == .kilometers) ? GPSController.topSpeed*3.6 : GPSController.topSpeed*2.23694) + ((SettingController.settings.distanceUnit == .kilometers) ? " km/h" : " mph")
             break
         case 1:
             cell.descriptionLabel.text = "Power:"
@@ -142,7 +135,7 @@ class GPSController: UIViewController, CLLocationManagerDelegate, UITableViewDel
             break
         case 2:
             cell.descriptionLabel.text = "Efficiency:"
-            cell.valueLabel.text = String(format: "%.1f", GPSController.efficiency) + " Wh/" + ((SettingController.distanceUnit == SettingController.distanceEnum.kilometers) ? "km" : "mi")
+            cell.valueLabel.text = String(format: "%.1f", GPSController.efficiency) + " Wh/" + ((SettingController.settings.distanceUnit == .kilometers) ? "km" : "mi")
             break
         case 3:
             cell.descriptionLabel.text = "Estimated range:"
@@ -151,14 +144,14 @@ class GPSController: UIViewController, CLLocationManagerDelegate, UITableViewDel
 //            print(remainingPower)
 //            print("\(cmd_basicInformation.residualCapacity ?? 0) \((cmd_basicInformation.numberOfCells ?? 0))")
             if GPSController.efficiency == 0.0 || remainingPower == 0.0 {
-                cell.valueLabel.text = "0" + ((SettingController.distanceUnit == SettingController.distanceEnum.kilometers) ? " km" : " mi")
+                cell.valueLabel.text = "0" + ((SettingController.settings.distanceUnit == .kilometers) ? " km" : " mi")
                 break
             }
-            cell.valueLabel.text = String(format: "%.0f", remainingPower/GPSController.efficiency) + ((SettingController.distanceUnit == SettingController.distanceEnum.kilometers) ? " km" : " mi")
+            cell.valueLabel.text = String(format: "%.0f", remainingPower/GPSController.efficiency) + ((SettingController.settings.distanceUnit == .kilometers) ? " km" : " mi")
             break
         case 4:
             cell.descriptionLabel.text = "Traveled distance:"
-            if SettingController.distanceUnit == .kilometers {
+            if SettingController.settings.distanceUnit == .kilometers {
                 if GPSController.totalDistance < 1000 {
                     cell.valueLabel.text = String(format: "%.0f", GPSController.totalDistance) + " m"
                 }
@@ -206,7 +199,7 @@ class GPSController: UIViewController, CLLocationManagerDelegate, UITableViewDel
     
     @objc func disconnectUpdate() {
         let banner = FloatingNotificationBanner(title: "Warning:",
-                                                subtitle: "Lost connection to \(DevicesController.getConnectedDevice().getName())!",
+                                                subtitle: "Lost connection to \(DevicesController.getConnectedDevice()!.getName())!",
                                                 style: .warning)
         banner.haptic = .medium
         banner.autoDismiss = false
@@ -215,7 +208,7 @@ class GPSController: UIViewController, CLLocationManagerDelegate, UITableViewDel
     
     @objc func didFailToConnect() {
         let banner = FloatingNotificationBanner(title: "Warning:",
-                                                subtitle: "Connection to \(DevicesController.getConnectedDevice().getName()) failed!",
+                                                subtitle: "Connection to \(DevicesController.getConnectedDevice()!.getName()) failed!",
                                                 style: .warning)
         banner.haptic = .medium
         banner.autoDismiss = true

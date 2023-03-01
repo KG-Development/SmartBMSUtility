@@ -15,9 +15,13 @@ class sensorRenameCell: UITableViewCell {
     @IBOutlet var sensorNameTextField: UITextField!
     
     @IBAction func editingDidEnd(_ sender: UITextField) {
-        print(index)
         DispatchQueue.main.async {
-            UserDefaults.standard.setValue(self.sensorNameTextField.text, forKey: "com.nearix.Smart-BMS-Utility:\(DevicesController.getConnectedDevice().getIdentifier()):\(self.index)")
+            if self.sensorNameTextField.text == nil || self.sensorNameTextField.text == "" {
+                DevicesController.getConnectedDevice()?.settings.sensorNames[self.index] = nil
+            }
+            else {
+                DevicesController.getConnectedDevice()?.settings.sensorNames[self.index] = self.sensorNameTextField.text
+            }
         }
     }
 }

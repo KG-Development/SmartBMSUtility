@@ -18,13 +18,21 @@ class demoDevice {
         print("demoDevice: AddObserver()")
         NotificationCenter.default.removeObserver(self)
         NotificationCenter.default.addObserver(self, selector: #selector(generateData), name: Notification.Name("DemoDeviceNeeded"), object: nil)
+        if DevicesController.deviceArray.count > 0 {
+            for i in 0...DevicesController.deviceArray.count-1 {
+                if DevicesController.deviceArray[i].type == device.connectionType.demo {
+                    return
+                }
+            }
+        }
         let tmpDevice = device()
         tmpDevice.connected = false
         tmpDevice.type = .demo
-        tmpDevice.deviceName = "Demo device"
-        tmpDevice.macAddress = "01:23:45:67:89:AB"
+        tmpDevice.settings.deviceUUID = "demo"
+        tmpDevice.settings.deviceName = "Demo device"
         DevicesController.deviceArray.insert(tmpDevice, at: 0)
         NotificationCenter.default.post(name: NSNotification.Name("reloadDevices"), object: nil)
+        fileController.createDeviceDirectory(identifier: "demo")
     }
     
     @objc static func generateData() {
@@ -94,5 +102,15 @@ class demoDevice {
         datacopy[datacopy.count-2] = checksumBytes.1
         
         return data
+    }
+    static func removeDemoDevice() {
+        if DevicesController.deviceArray.count > 0 {
+            for i in 0...DevicesController.deviceArray.count-1 {
+                if DevicesController.deviceArray[i].type == device.connectionType.demo {
+                    DevicesController.deviceArray.remove(at: i)
+                    return
+                }
+            }
+        }
     }
 }

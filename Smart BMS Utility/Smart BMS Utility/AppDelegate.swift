@@ -16,9 +16,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISceneDelegate {
 
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        AppDelegate.timer = Timer.scheduledTimer(timeInterval: TimeInterval(Double(SettingController.refreshTime) / 1000.0), target: self, selector: #selector(sendPacketNotification), userInfo: nil, repeats: true)
+        AppDelegate.timer = Timer.scheduledTimer(timeInterval: TimeInterval(Double(SettingController.settings.refreshTime) / 1000.0), target: self, selector: #selector(sendPacketNotification), userInfo: nil, repeats: true)
+        fileController.createDirectories()
         UserDefaults.standard.set(false, forKey: "_UIConstraintBasedLayoutLogUnsatisfiable")
-        
         return true
     }
     
@@ -64,10 +64,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISceneDelegate {
     
     @objc func sendPacketNotification() {
 //        print("AppDelegate: sendPacketNotification()")
-        if SettingController.useBluetooth && DevicesController.connectionMode == .bluetooth && !(OverviewController.BLEInterface?.pauseTransmission ?? false) {
+        if DevicesController.connectionMode == .bluetooth && !(OverviewController.BLEInterface?.pauseTransmission ?? false) {
+            if UIApplication.shared.applicationState == .background {
+                if !SettingController.settings.backgroundUpdating {
+                    return
+                }
+            }
             NotificationCenter.default.post(name: Notification.Name("BluetoothSendNeeded"), object: nil)
         }
-        if SettingController.useDemo && DevicesController.connectionMode == .demo {
+        if SettingController.settings.useDemo && DevicesController.connectionMode == .demo {
             NotificationCenter.default.post(name: Notification.Name("DemoDeviceNeeded"), object: nil)
         }
     }
