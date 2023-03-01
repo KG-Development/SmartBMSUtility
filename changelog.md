@@ -1,6 +1,12 @@
 # Changelog
-## v2.0.0 - available on TextFlight
+## v2.0.1 
+	- added back option to export log data to csv
+	- added back gps view including range calculations
+
+## v2.0.0
 	- complete recode in SwiftUI
+	- Added Logging using SwiftUI's new Chart library
+	- enhanced password features
 
 ## v1.2.2
 	- Fixed charging/discharging buttons sending wrong states after first launch
