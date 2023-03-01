@@ -9,9 +9,7 @@ If you want to help me keep apps like this alive and updated, please consider be
 
 ## Status:
 
-#### iOS: [v2.0 on TestFlight](https://testflight.apple.com/join/YWdbkZ8s)
-##### I'm waiting for the release of iOS 16, MacOS 13 and the corresponding XCode version to publish version 2.0
-#### iOS: [v1.2.2](https://apps.apple.com/de/app/apple-store/id1540178292)<br>
+#### iOS: [v2.0.1](https://apps.apple.com/de/app/apple-store/id1540178292)<br>
 #### macOS: [v1.2.2](https://apps.apple.com/de/app/apple-store/id1540178292)
 
 #### [Changelog](https://github.com/NeariX67/SmartBMSUtility/blob/main/changelog.md)
@@ -24,6 +22,7 @@ This is because liontron uses a hardware password. If you know this password, yo
 
 ## About this repository
 This repository is intended to track issues and minor feature requests. I have removed any relevant file from my Xcode workspace to avoid users compiling it for their own use, as I intend to sell this tool.
+I am currently not planning to publish v2's source code for that same reason.
 
 ## Contributing
 You can contribute to this project by submitting untested code changes that I will test with my workspace.
