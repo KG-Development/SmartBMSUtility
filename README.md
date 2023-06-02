@@ -1,5 +1,11 @@
 # SmartBMSUtility
-This is the repository for my iOS App to connect with Xiaoxiang (JBD) Smart BMS' 
+This is the repository for my iOS App to connect with Xiaoxiang (JBD) Smart BMS'
+
+# I am currently working on version 3!
+It will be built using Flutter, a cross-platform frontend framework.
+The App will also launch on the Play Store, and maybe native Desktop applications as well.
+
+
 ### You can buy the bms here:
 https://www.lithiumbatterypcb.com/<br>
 https://overkillsolar.com/
