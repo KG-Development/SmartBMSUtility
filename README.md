@@ -11,12 +11,16 @@ The App will also launch on the Play Store, and maybe native Desktop application
 
 | Platform |  Bluetooth  | WebSerial   | Native Serial |
 |----------|-------------|-------------|---------------|
-| iOS      | Working     | Unsupported | Planned       |
-| macOS    | Working     | Unsupported | Planned       |
-| Android  | Untested    | Unsupported | Planned       |
-| Windows  | Crashing    | Unsupported | Planned       |
-| Linux    | Untested    | Unsupported | Planned       |
+| iOS      | Working     | Unsupported | Unsupported   |
+| macOS    | Working     | Unsupported | Untested      |
+| Android  | Untested    | Unsupported | Untested      |
+| Windows  | Crashing    | Unsupported | Working       |
+| Linux    | Untested    | Unsupported | Untested      |
 | Web      | Unsupported | Crashing    | Unsupported   |
+
+### Small teaser :)
+
+![image of the new app](V3_screenshot.png)
 
 ### You can buy a JBD BMS here
 
