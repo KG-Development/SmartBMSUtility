@@ -16,7 +16,9 @@ The App will also launch on the Play Store, and maybe native Desktop application
 | Android  | Untested    | Unsupported | Untested      |
 | Windows  | Crashing    | Unsupported | Working       |
 | Linux    | Untested    | Unsupported | Untested      |
-| Web      | Unsupported | Crashing    | Unsupported   |
+| Web      | Unsupported | Working     | Unsupported   |
+
+* When a connection can't be made, try hard reloading the website (Ctrl+Shift+R)
 
 ### Small teaser :)
 
