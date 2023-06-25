@@ -12,7 +12,7 @@ The App will also launch on the Play Store, and maybe native Desktop application
 | Platform |  Bluetooth  | WebSerial   | Native Serial |
 |----------|-------------|-------------|---------------|
 | iOS      | Working     | Unsupported | Unsupported   |
-| macOS    | Working     | Unsupported | Untested      |
+| macOS    | Working     | Unsupported | Working       |
 | Android  | Untested    | Unsupported | Untested      |
 | Windows  | Crashing    | Unsupported | Working       |
 | Linux    | Untested    | Unsupported | Untested      |
