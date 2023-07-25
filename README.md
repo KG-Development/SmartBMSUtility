@@ -7,15 +7,15 @@ This is the repository for my iOS App to connect with Xiaoxiang (JBD) Smart BMS'
 Version 3 is in active development, in cooperation with @ImVelas
 
 It will be built using Flutter, a cross-platform frontend framework.
-The App will also launch on the Play Store, and maybe native Desktop applications as well.
+The App will also launch on the Play Store, and native Desktop applications as well.
 
 | Platform |  Bluetooth  | WebSerial   | Native Serial |
 |----------|-------------|-------------|---------------|
-| iOS      | Working     | Unsupported | Unsupported   |
-| macOS    | Working     | Unsupported | Working       |
-| Android  | Untested    | Unsupported | Untested      |
-| Windows  | Crashing    | Unsupported | Working       |
-| Linux    | Untested    | Unsupported | Untested      |
+| iOS      | Working     | -           | Unsupported   |
+| macOS    | Working     | -           | Working       |
+| Android  | Untested    | -           | Untested      |
+| Windows  | Working     | -           | Working       |
+| Linux    | Untested    | -           | Untested      |
 | Web      | Unsupported | Working     | Unsupported   |
 
 * When a connection can't be made, try hard reloading the website (Ctrl+Shift+R)
