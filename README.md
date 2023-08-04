@@ -1,8 +1,12 @@
 # SmartBMSUtility
 
-This is the repository for my iOS App to connect with Xiaoxiang (JBD) Smart BMS'
+This is the repository for my Cross-Platform App to connect with Xiaoxiang (JBD) Smart BMS'
+
+[See more at our homepage](https://smartbmsutility.com/)
 
 ## Version 3
+
+iOS/MacOS TestFlight: https://testflight.apple.com/join/YWdbkZ8s
 
 Version 3 is in active development, in cooperation with @ImVelas
 
@@ -14,13 +18,11 @@ The App will also launch on the Play Store, and native Desktop applications as w
 | iOS      | Working     | -           | Unsupported   |
 | macOS    | Working     | -           | Working       |
 | Android  | Working     | -           | Untested      |
-| Windows  | Working     | -           | Working       |
+| Windows  | Working*    | -           | Working       |
 | Linux    | Untested    | -           | Untested      |
 | Web      | Unsupported | Working     | Unsupported   |
 
-### Small teaser :)
-
-![image of the new app](V3_screenshot.png)
+[*] Crashes may occur.
 
 ### You can buy a JBD BMS here
 
@@ -34,9 +36,15 @@ If you want to help me keep apps like this alive and updated, please consider be
 
 ## Status
 
-iOS: [v2.1](https://apps.apple.com/de/app/apple-store/id1540178292)
+iOS: [v2.1](https://apps.apple.com/de/app/apple-store/id1540178292), [v3.0.0](https://testflight.apple.com/join/YWdbkZ8s)
 
-macOS: [v1.2.2](https://apps.apple.com/de/app/apple-store/id1540178292)
+macOS: [v1.2.2](https://apps.apple.com/de/app/apple-store/id1540178292), [v3.0.0](https://testflight.apple.com/join/YWdbkZ8s)
+
+Windows: Not released yet
+
+Android: In Progress
+
+Linux: Not yet planned
 
 [Changelog](https://github.com/NeariX67/SmartBMSUtility/blob/main/changelog.md)
 
