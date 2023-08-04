@@ -13,12 +13,10 @@ The App will also launch on the Play Store, and native Desktop applications as w
 |----------|-------------|-------------|---------------|
 | iOS      | Working     | -           | Unsupported   |
 | macOS    | Working     | -           | Working       |
-| Android  | Untested    | -           | Untested      |
+| Android  | Working     | -           | Untested      |
 | Windows  | Working     | -           | Working       |
 | Linux    | Untested    | -           | Untested      |
 | Web      | Unsupported | Working     | Unsupported   |
-
-* When a connection can't be made, try hard reloading the website (Ctrl+Shift+R)
 
 ### Small teaser :)
 
