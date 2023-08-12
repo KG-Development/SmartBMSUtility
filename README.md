@@ -1,86 +1,52 @@
-# SmartBMSUtility
+# SmartBMS Utility
 
-This is the repository for my Cross-Platform App to connect with Xiaoxiang (JBD) Smart BMS'
+<a href="https://SmartBMSUtility.com">
+  <img width="100%" alt="SmartBMS Utility Banner" src="img/Banner.png">
+</a>
 
-[See more at our homepage](https://smartbmsutility.com/)
 
-## Version 3
+![GitHub pull requests](https://img.shields.io/github/issues-pr/NeariX67/SmartBMSUtility)
+![GitHub last commit](https://img.shields.io/github/last-commit/NeariX67/SmartBMSUtility)
+![GitHub issues](https://img.shields.io/github/issues-raw/NeariX67/SmartBMSUtility)
 
-iOS/MacOS TestFlight: https://testflight.apple.com/join/YWdbkZ8s
 
-Version 3 is in active development, in cooperation with @ImVelas
+## Summary
+Welcome to SmartBMS Utility, an advanced app for optimizing energy management and extending battery life. Monitor and control your Battery Management System (BMS) from your smartphone with real-time data on charge, consumption, and more. Make informed decisions to minimize wastage and increase efficiency. Customize settings for personalized charging and discharging plans. Your data is securely stored locally. Currently compatible with JBD BMS. Easy setup for eco-conscious homeowners, solar enthusiasts, and campers. Unleash your BMS's potential for sustainable energy. Download now for smarter energy use! Contact us for inquiries. Thank you for your interest and support!
 
-It will be built using Flutter, a cross-platform frontend framework.
-The App will also launch on the Play Store, and native Desktop applications as well.
+Support for Daly BMS is expected in version 3.1
 
-| Platform |  Bluetooth  | WebSerial   | Native Serial |
-|----------|-------------|-------------|---------------|
-| iOS      | Working     | -           | Unsupported   |
-| macOS    | Working     | -           | Working       |
-| Android  | Working     | -           | Untested      |
-| Windows  | Working*    | -           | Working       |
-| Linux    | Untested    | -           | Untested      |
-| Web      | Unsupported | Working     | Unsupported   |
+## Download App
 
-[*] Crashes may occur.
+| Android | iOS & MacOS | Windows |
+|:-:|:-:|:-:|
+| [<img src="img/google-play.png" alt="Get it on Google Play" height="40">](https://play.google.com/store/apps/details?id=com.nearix.smart_bms_utility) | [<img src="img/app-store.png" alt="Get it on the iOS App Store" height="40">](https://apps.apple.com/de/app/apple-store/id1540178292) |  [<img src="img/windows-banner.png" alt="Get it on the Windows Store" height="48">](https://apps.apple.com/de/app/apple-store/id1540178292)
+
+[Changelog](/changelog.md)
+
+## Platform-Features
+
+| Platform | Bluetooth Connectivity | WebSerial Support | Native Serial Communication |
+|----------|------------------------|-------------------|-----------------------------|
+| iOS      | ✔ Working              | -                 | ❌ Unsupported              |
+| macOS    | ✔ Working              | -                 | ✔ Working                   |
+| Android  | ✔ Working              | -                 | ❌ Unsupported              |
+| Windows  | ✔ Working              | -                 | ✔ Working                   |
+| Web      |❌ Unsupported          | ✔ Working         | ❌ Unsupported              |
+
+### Become a Beta Tester?
+
+If you want to have access to features before anyone else, you can contact us and register as beta tester. You will be able to help us release a stable and flawless release version.
+
+[iOS Tester](https://testflight.apple.com/join/YWdbkZ8s)
+
+[Android Tester](https://SmartBMsUtility.com/contact)
 
 ### You can buy a JBD BMS here
 
-https://www.lithiumbatterypcb.com/
+[lithiumbatterypcb.com](https://www.lithiumbatterypcb.com/)
 
-https://overkillsolar.com/
+[overkillsolar.com](https://overkillsolar.com/)
 
-## Sponsors
+or buy prebuild batteries here:
 
-If you want to help me keep apps like this alive and updated, please consider becoming a github sponsor or leaving as much as you want on my paypal. This will help to cover my Apple Developer expenses of 99$ a year.
-
-## Status
-
-iOS: [v2.1](https://apps.apple.com/de/app/apple-store/id1540178292), [v3.0.0](https://testflight.apple.com/join/YWdbkZ8s)
-
-macOS: [v1.2.2](https://apps.apple.com/de/app/apple-store/id1540178292), [v3.0.0](https://testflight.apple.com/join/YWdbkZ8s)
-
-Windows: Not released yet
-
-Android: In Progress
-
-Linux: Not yet planned
-
-[Changelog](https://github.com/NeariX67/SmartBMSUtility/blob/main/changelog.md)
-
-## Known issues
-
-### LionTron batteries can't be configured
-
-This is because liontron uses a hardware password. If you know this password, you can enter it in the app (version 2 or newer)
-
-## About this repository
-
-This repository is intended to track issues and minor feature requests. I have removed any relevant file from my Xcode workspace to avoid users compiling it for their own use, as I intend to sell this tool.
-
-## Contributing
-
-You can contribute to this project by submitting untested code changes that I will test with my workspace.
-To contribute to this project and test it with the whole project, I can give you access to my private repository if you can prove that you have a current Apple developer license. This requirement could be waived, as it only serves to prevent other users from compiling for themselves.
-Contact me by e-mail, Discord @NeariX or Twitter (link in my profile) to gain access to my private repository containing all code.
-
-Make sure to check out [Discussions](https://github.com/NeariX67/SmartBMSUtility/discussions) where I'm willing to help you.
-
-## FAQ
-
-### I can't find my device in my app?
-
-The app searches for nearby devices with specific characteristics. If your Smart BMS offers different characteristics it will not display it. You can help me resolving this issue by sending me details about your BMS and its bluetooth characteristics.
-
-### Can I configure my BMS with this app?
-
-Yes, you can configure your BMS with this app, make sure to come back and report any issues when found.
-
-### Can i help this app by becoming a beta tester?
-
-Yes of course. I have made a [TestFlight](https://testflight.apple.com/join/YWdbkZ8s) which you can join.
-
-### What's up with the GPS features in this App?
-
-Originally I wanted an iOS application to track my efficiency and the range of my electric scooter. So I contacted @smagicld to help him add this feature to his application, and he rejected it. Since it would be a waste of time and effort to make this application just for me, I decided to make it public, open source and as user-centric as possible. If your current use case needs a specific feature in the application, let me know, I will be happy to help implement your application.
-You should be able to use this application on your electric bicycle to see the current energy consumption, the energy use per kilometer/mile and the expected remaining range based on your current energy consumption and GPS speed.
+[Liontron](https://liontron.com)
