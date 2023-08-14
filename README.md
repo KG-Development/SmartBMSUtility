@@ -19,7 +19,7 @@ Support for Daly BMS is expected in version 3.1
 
 | Android | iOS & MacOS | Windows |
 |:-:|:-:|:-:|
-| [<img src="img/google-play.png" alt="Get it on Google Play" height="40">](https://play.google.com/store/apps/details?id=com.nearix.smart_bms_utility) | [<img src="img/app-store.png" alt="Get it on the iOS App Store" height="40">](https://apps.apple.com/de/app/apple-store/id1540178292) |  [<img src="img/windows-banner.png" alt="Get it on the Windows Store" height="48">](https://apps.apple.com/de/app/apple-store/id1540178292)
+| [<img src="img/google-play.png" alt="Get it on Google Play" height="40">](https://play.google.com/store/apps/details?id=com.nearix.smart_bms_utility) | [<img src="img/app-store.png" alt="Get it on the iOS App Store" height="40">](https://apps.apple.com/de/app/apple-store/id1540178292) |  [<img src="img/windows-banner.png" alt="Get it on the Windows Store" height="48">](https://www.microsoft.com/store/apps/9PGTNGPSJQ55)
 
 [Changelog](/changelog.md)
 
