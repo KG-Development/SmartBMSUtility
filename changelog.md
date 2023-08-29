@@ -1,5 +1,14 @@
 # Changelog
 
+## v3.0.1
+
+- Fix estimated Range in GPS View
+- Fix text breaking in Overview
+- Minor visual improvements
+- Added alert when connection to BMS takes longer than expected
+- Display warnings and errors from BMS (Overcurrent etc.)
+- Added Export Logging Data to CSV file
+
 ## v3.0.0
 
 - Rewritten the App in Flutter
