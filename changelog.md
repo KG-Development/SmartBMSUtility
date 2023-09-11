@@ -1,5 +1,16 @@
 # Changelog
 
+## v3.0.3
+
+- Fix wrong keyboard type on device filter
+- Minor UI layout and text adjustments
+- Added help texts in Configuration View
+
+## v3.0.2
+
+- Added option to filter for BMS names
+- Fixed crash on Android 12
+
 ## v3.0.1
 
 - Fix estimated Range in GPS View
