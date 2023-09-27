@@ -1,5 +1,15 @@
 # Changelog
 
+## v3.0.4
+
+- Added debugging log
+- Changed how files are exported / shared
+- [iOS + MacOS] Added option to enable background operation
+- Minor UI adjustments
+- Fixed "Discharge Overcurrent Trigger" value offset by 10 mA
+- [Windows] reduced connection times
+- Fix Auto-Connect when a device is already connected
+
 ## v3.0.3
 
 - Fix wrong keyboard type on device filter
