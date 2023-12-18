@@ -1,5 +1,15 @@
 # Changelog
 
+## v3.1.0
+
+- We now support the Daly BMS with all the available features!
+- New UI to display the battery capacity
+- In the Multiconnection screen you have a section to display summed up values
+- reorganized app settings
+- Changes for JBD:
+  - display the bms error counts
+  - reset the bms errors
+
 ## v3.0.4
 
 - Added debugging log
