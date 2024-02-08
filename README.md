@@ -13,7 +13,7 @@
 ## Summary
 Welcome to SmartBMS Utility, an advanced app for optimizing energy management and extending battery life. Monitor and control your Battery Management System (BMS) from your smartphone with real-time data on charge, consumption, and more. Make informed decisions to minimize wastage and increase efficiency. Customize settings for personalized charging and discharging plans. Your data is securely stored locally. Currently compatible with JBD BMS. Easy setup for eco-conscious homeowners, solar enthusiasts, and campers. Unleash your BMS's potential for sustainable energy. Download now for smarter energy use! Contact us for inquiries. Thank you for your interest and support!
 
-Support for Daly BMS is expected in version 3.1
+Support for Daly BMS since version 3.1
 
 ## Download App
 
