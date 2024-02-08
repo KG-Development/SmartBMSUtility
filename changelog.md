@@ -1,5 +1,19 @@
 # Changelog
 
+## v3.1.2
+
+- Devices will now reconnect after connection has been lost
+- JBD: Added support for older bluetooth dongles
+
+## v3.1.1
+
+- Multiview scrollable
+- Open Device from MultiDeviceView
+- Battery Display in overview can be switched between old and new style by clicking
+- Daly: Refactored the configuration dropdowns
+- JBD: Advanced Protection configuration added
+- JBD: Disable configuration editing until first read
+
 ## v3.1.0
 
 - We now support the Daly BMS with all the available features!
