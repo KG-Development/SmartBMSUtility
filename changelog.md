@@ -1,5 +1,17 @@
 # Changelog
 
+## v3.2.0
+
+- Configuration profiles added. You can export and import them to get support from your dealer or share them with your friends!
+- The version number of the app is now visible on the information page.
+- More logging information has been added so we can better help you when you contact us!
+- JBD:
+  - Added compatibility for newer BMS versions
+  - More crash safety!
+- Daly:
+  - Progress bar will be displayed when writing configuration
+  - The switch-off delay is now calculated correctly
+
 ## v3.1.2
 
 - Devices will now reconnect after connection has been lost
