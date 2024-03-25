@@ -1,5 +1,11 @@
 # Changelog
 
+## v3.2.2
+
+- Added Chinese and Italian to the supported languages.
+- JBD: 
+  - Fixed read configuration for some special batteries.
+
 ## v3.2.0
 
 - Configuration profiles added. You can export and import them to get support from your dealer or share them with your friends!
