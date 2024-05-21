@@ -1,5 +1,22 @@
 # Changelog
 
+## v3.2.5
+- Added option to set up notifications and actions once certain events occur
+- Fix opening contact form and other sites on android
+- Improved logging view
+- JBD:
+  - Fix writing certain configuration parameters that depend on others
+
+## v3.2.4
+- Exporting files under MacOS fixed
+- Daly:
+    - Checking password has been fixed
+
+## v3.2.3
+- Fixed some bugs with setting a bms password
+- Daly: 
+    - Added unfiltered search to find all dongles and support more bms
+
 ## v3.2.2
 
 - Added Chinese and Italian to the supported languages.
