@@ -1,5 +1,8 @@
 # Changelog
 
+## v3.2.6 [Android only]
+- Fix crash on startup
+
 ## v3.2.5
 - Added option to set up notifications and actions once certain events occur
 - Fix opening contact form and other sites on android
