@@ -1,5 +1,17 @@
 # Changelog
 
+## 3.4.0
+- Updated the UI in some places
+- Fix export of CSV files
+- You can now trigger notifications and actions based on cellvoltage delta
+
+JBD:
+- We now support password protected bluetooth dongles!
+- Implement Calibration (Current, Voltage)
+
+Daly:
+- Increased the maximum value for rated capacity
+
 ## v3.3.1 [Android only]
 - Fix crash on startup
 
