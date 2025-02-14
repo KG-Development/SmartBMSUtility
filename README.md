@@ -23,15 +23,27 @@ Support for Daly BMS since version 3.1
 
 [Changelog](/changelog.md)
 
+## BMS compatability
+
+| BMS       | State         |
+|-----------|---------------|
+| JBD       | Working       |
+| Daly BT   | Working*      |
+| Daly WiFi | Not supported |
+| JK        | Not supported |
+| Ant       | Not supported |
+
+\* Note: Some devices may require the unfiltered search to be discovered.
+
+
 ## Platform-Features
 
-| Platform | Bluetooth Connectivity | WebSerial Support | Native Serial Communication |
-|----------|------------------------|-------------------|-----------------------------|
-| iOS      | ✔ Working              | -                 | ❌ Unsupported              |
-| macOS    | ✔ Working              | -                 | ✔ Working                   |
-| Android  | ✔ Working              | -                 | ❌ Unsupported              |
-| Windows  | ✔ Working              | -                 | ✔ Working                   |
-| Web      |❌ Unsupported          | ✔ Working         | ❌ Unsupported              |
+| Platform | Bluetooth Connectivity | Native Serial Communication |
+|----------|------------------------|-----------------------------|
+| iOS      | ✔ Working              | ❌ Unsupported             |
+| macOS    | ✔ Working              | ✔ Working                  |
+| Android  | ✔ Working              | ❌ Unsupported             |
+| Windows  | ✔ Working              | ✔ Working                  |
 
 ### Become a Beta Tester?
 
