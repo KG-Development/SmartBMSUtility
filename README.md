@@ -25,6 +25,10 @@ Support for Daly BMS since version 3.1
 
 ## BMS compatability
 
+Check out our [compatibility list](https://github.com/KG-Development/SmartBMSUtility/blob/main/compatibility.md).
+
+If you know the type of BMS your battery has, this list is for you:
+
 | BMS       | State         |
 |-----------|---------------|
 | JBD       | Working       |
@@ -34,7 +38,6 @@ Support for Daly BMS since version 3.1
 | Ant       | Not supported |
 
 \* Note: Some devices may require the unfiltered search to be discovered.
-
 
 ## Platform-Features
 
