@@ -1,6 +1,24 @@
 # Changelog
 
-## 3.4.0
+## v3.5.0
+
+- Some translations have been revised
+- The logging graph has been expanded to include zoom and scroll functions
+- Pop-up dialogs have been adapted to the respective platform
+- Time format is now adopted by the system
+- Performance optimization for logging has been carried out
+- Navigation between the tabs has been adjusted
+
+## v3.4.2
+
+JBD:
+- Added option to create and remove a bluetooth password
+- You can now read and write the configuration when a battery is protected by a bluetooth password
+- Changing the password does not cause an error when connecting the next time
+- Added option to change max. speed of tachometer
+- SOC is now displayed when using serial and parallel connections in multi device view
+
+## v3.4.0, v3.4.1
 - Updated the UI in some places
 - Fix export of CSV files
 - You can now trigger notifications and actions based on cellvoltage delta
