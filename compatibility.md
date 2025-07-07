@@ -11,3 +11,4 @@ Please help us maintain this list! Edit this file and make a pull request, or te
 | Epoch Batteries      | ?        | ?                                   |
 | Robur                | ?        | Yes                                 |
 | PowerQueen           | ?        | ?                                   |
+| Ultimatron           | JBD      | Yes                                 |
