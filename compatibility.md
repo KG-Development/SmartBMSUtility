@@ -13,3 +13,4 @@ Please help us maintain this list! Edit this file and make a pull request, or te
 | PowerQueen           | ?        | ?                                   |
 | Ultimatron           | JBD      | Yes                                 |
 | Eco-Worthy           | JBD / ?  | Yes / No. Some models use a different, incompatible BMS. |
+| Berger               | JBD      | Yes                                 |
