@@ -34,7 +34,7 @@ If you know the type of BMS your battery has, this list is for you:
 | JBD       | Working       |
 | Daly BT   | Working*      |
 | Daly WiFi | Not supported |
-| JK        | Not supported |
+| JK        | In progress   |
 | Ant       | Not supported |
 
 \* Note: Some devices may require the unfiltered search to be discovered.
