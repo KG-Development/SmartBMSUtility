@@ -192,6 +192,18 @@
       }
     },
     {
+      "id": "mjbsan",
+      "name": "Mjbsan",
+      "bms": "unknown",
+      "status": "supported",
+      "source": "user-report",
+      "lastVerified": "2026-08-26",
+      "notes": {
+        "en": "A user confirmed in the forum that their 12V 320Ah battery from Amazon works with the 250A BMS.",
+        "de": "Ein nutzer hat im Forum bestätigt, dass seine 12V 320Ah Batterie von Amazon mit dem 250A BMS funktioniert."
+      }
+    },
+    {
       "id": "berger",
       "name": "Berger",
       "bms": "JBD",
