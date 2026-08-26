@@ -1,0 +1,299 @@
+{
+  "schemaVersion": 1,
+  "lastUpdated": "2026-08-26",
+  "maintainer": "Kühner & Gehrke Development UG",
+  "reportUrl": "https://smartbmsutility.com/contact/",
+  "statusValues": {
+    "supported": {
+      "en": "Works with SmartBMS Utility",
+      "de": "Funktioniert mit SmartBMS Utility"
+    },
+    "partial": {
+      "en": "Depends on the model, some units use a different BMS",
+      "de": "Vom Modell abhängig, manche Geräte haben ein anderes BMS"
+    },
+    "unsupported": {
+      "en": "Does not work, the battery speaks a different protocol",
+      "de": "Funktioniert nicht, die Batterie spricht ein anderes Protokoll"
+    },
+    "unknown": {
+      "en": "Not confirmed yet",
+      "de": "Noch nicht bestätigt"
+    }
+  },
+  "sourceValues": {
+    "legacy-list": {
+      "en": "Carried over from our earlier list, original report not recorded",
+      "de": "Aus unserer früheren Liste übernommen, Herkunft nicht dokumentiert"
+    },
+    "user-report": {
+      "en": "Reported by a user",
+      "de": "Von einem Nutzer berichtet"
+    },
+    "manufacturer": {
+      "en": "Statement by the battery manufacturer",
+      "de": "Auskunft des Batterieherstellers"
+    },
+    "own-analysis": {
+      "en": "Our own protocol analysis",
+      "de": "Eigene Protokollanalyse"
+    },
+    "third-party": {
+      "en": "Published by an independent project",
+      "de": "Veröffentlichung eines unabhängigen Projekts"
+    }
+  },
+  "bmsValues": {
+    "unknown": {
+      "en": "Unknown",
+      "de": "Unbekannt"
+    },
+    "proprietary": {
+      "en": "Own design",
+      "de": "Eigenentwicklung"
+    },
+    "jbd-or-unknown": {
+      "en": "JBD or unknown",
+      "de": "JBD oder unbekannt"
+    }
+  },
+  "manufacturers": [
+    {
+      "id": "liontron",
+      "name": "LionTron",
+      "bms": "JBD",
+      "status": "supported",
+      "source": "legacy-list",
+      "notes": {
+        "en": "LionTron is a partner of ours. Monitoring and configuration work as expected.",
+        "de": "LionTron ist Partner von uns. Überwachung und Konfiguration laufen wie erwartet."
+      }
+    },
+    {
+      "id": "bulltron",
+      "name": "Bulltron",
+      "bms": "Daly",
+      "status": "supported",
+      "source": "legacy-list",
+      "notes": {
+        "en": "Some units only show up in the unfiltered search behind the magnifier icon. Once connected they behave like any other Daly based battery.",
+        "de": "Manche Geräte erscheinen nur in der ungefilterten Suche hinter dem Lupensymbol. Nach dem Verbinden verhalten sie sich wie jede andere Daly-Batterie."
+      }
+    },
+    {
+      "id": "forster-smart-power",
+      "name": "Forster Smart Power",
+      "bms": "jbd-or-unknown",
+      "status": "partial",
+      "source": "legacy-list",
+      "notes": {
+        "en": "Depends on the model. Some Forster batteries use JBD and work, others use a different BMS our app cannot talk to.",
+        "de": "Vom Modell abhängig. Manche Forster-Batterien nutzen JBD und funktionieren, andere haben ein anderes BMS, mit dem die App nicht sprechen kann."
+      }
+    },
+    {
+      "id": "vatrer-power",
+      "name": "Vatrer Power",
+      "bms": "unknown",
+      "status": "supported",
+      "source": "legacy-list",
+      "notes": {
+        "en": "Reported as working. Which BMS is inside has not been confirmed.",
+        "de": "Wird als funktionierend gemeldet. Welches BMS verbaut ist, wurde nicht bestätigt."
+      }
+    },
+    {
+      "id": "ag-lithium",
+      "name": "AG Lithium",
+      "bms": "unknown",
+      "status": "unsupported",
+      "source": "legacy-list",
+      "notes": {
+        "en": "Reported as not working. The BMS inside has not been identified.",
+        "de": "Wird als nicht funktionierend gemeldet. Das verbaute BMS ist nicht identifiziert."
+      }
+    },
+    {
+      "id": "litime",
+      "name": "LiTime",
+      "bms": "unknown",
+      "status": "unsupported",
+      "source": "legacy-list",
+      "notes": {
+        "en": "Reported as not working. The BMS inside has not been identified.",
+        "de": "Wird als nicht funktionierend gemeldet. Das verbaute BMS ist nicht identifiziert."
+      }
+    },
+    {
+      "id": "epoch-batteries",
+      "name": "Epoch Batteries",
+      "bms": "JBD",
+      "status": "unknown",
+      "source": "legacy-list",
+      "notes": {
+        "en": "Believed to use JBD, which would make it compatible, but we have no confirmed report yet.",
+        "de": "Vermutlich JBD, damit wäre sie kompatibel. Eine bestätigte Rückmeldung fehlt bisher."
+      }
+    },
+    {
+      "id": "robur",
+      "name": "Robur",
+      "bms": "JBD",
+      "status": "supported",
+      "source": "user-report",
+      "notes": {
+        "en": "Robur is a partner of ours. A user confirmed a Robur LiFePO4 working on the first try.",
+        "de": "Robur ist Partner von uns. Ein Nutzer hat eine Robur-LiFePO4 bestätigt, die auf Anhieb lief."
+      }
+    },
+    {
+      "id": "powerqueen",
+      "name": "Power Queen",
+      "bms": "unknown",
+      "status": "unknown",
+      "source": "legacy-list",
+      "notes": {
+        "en": "Still open. We have not been able to confirm which BMS Power Queen uses. If you own one, we would like to hear from you.",
+        "de": "Weiterhin offen. Wir konnten nicht klären, welches BMS Power Queen verbaut. Wer eine besitzt, darf sich gerne melden."
+      }
+    },
+    {
+      "id": "ultimatron",
+      "name": "Ultimatron",
+      "bms": "JBD",
+      "status": "supported",
+      "source": "legacy-list",
+      "notes": {
+        "en": "",
+        "de": ""
+      }
+    },
+    {
+      "id": "ultimatron-france",
+      "name": "Ultimatron France",
+      "bms": "Daly",
+      "status": "supported",
+      "source": "legacy-list",
+      "notes": {
+        "en": "Listed separately because these units were reported with a Daly BMS instead of JBD. Whether this is the same company is not clear to us.",
+        "de": "Getrennt geführt, weil diese Geräte mit einem Daly-BMS statt JBD gemeldet wurden. Ob es sich um dieselbe Firma handelt, ist uns nicht klar."
+      }
+    },
+    {
+      "id": "eco-worthy",
+      "name": "Eco-Worthy",
+      "bms": "jbd-or-unknown",
+      "status": "partial",
+      "source": "manufacturer",
+      "lastVerified": "2026-08-26",
+      "notes": {
+        "en": "Eco-Worthy support told us in August 2026 that their batteries only work with their own app. Individual users have reported ours working with older units, so the BMS appears to differ between models. We would not rely on it.",
+        "de": "Der Eco-Worthy-Support hat uns im August 2026 mitgeteilt, dass ihre Akkus nur mit der eigenen App funktionieren. Einzelne Nutzer melden trotzdem Erfolg mit älteren Geräten, das verbaute BMS unterscheidet sich also offenbar je nach Modell. Verlassen würden wir uns nicht darauf."
+      }
+    },
+    {
+      "id": "berger",
+      "name": "Berger",
+      "bms": "JBD",
+      "status": "supported",
+      "source": "legacy-list",
+      "notes": {
+        "en": "",
+        "de": ""
+      }
+    },
+    {
+      "id": "camperdice",
+      "name": "CAMPERDICE",
+      "bms": "unknown",
+      "status": "unsupported",
+      "source": "legacy-list",
+      "notes": {
+        "en": "Reported as not working. The BMS inside has not been identified.",
+        "de": "Wird als nicht funktionierend gemeldet. Das verbaute BMS ist nicht identifiziert."
+      }
+    },
+    {
+      "id": "fogstar",
+      "name": "Fogstar",
+      "bms": "JBD",
+      "status": "supported",
+      "source": "legacy-list",
+      "notes": {
+        "en": "",
+        "de": ""
+      }
+    },
+    {
+      "id": "superb",
+      "name": "Super B",
+      "bms": "proprietary",
+      "status": "unsupported",
+      "source": "third-party",
+      "lastVerified": "2026-08-26",
+      "notes": {
+        "en": "The Epsilon does not advertise a service UUID at all, only manufacturer data. It therefore cannot appear in the normal search screen, and its protocol is its own. Based on a device report in an independent Home Assistant BLE project, not on our own test.",
+        "de": "Die Epsilon sendet gar keine Service-UUID, nur Herstellerdaten. Sie kann deshalb im normalen Suchbildschirm nicht auftauchen, und ihr Protokoll ist ein eigenes. Grundlage ist eine Gerätemeldung in einem unabhängigen Home-Assistant-BLE-Projekt, kein eigener Test."
+      }
+    },
+    {
+      "id": "creabest",
+      "name": "CreaBest",
+      "bms": "proprietary",
+      "status": "unsupported",
+      "source": "own-analysis",
+      "lastVerified": "2026-08-25",
+      "notes": {
+        "en": "We analysed the CreaBest app in August 2026. The batteries use their own protocol on their own Bluetooth services, which is neither Daly nor JBD nor JK. Our app cannot read them today.",
+        "de": "Wir haben die CreaBest-App im August 2026 analysiert. Die Batterien nutzen ein eigenes Protokoll auf eigenen Bluetooth-Diensten, weder Daly noch JBD noch JK. Unsere App kann sie derzeit nicht auslesen."
+      }
+    },
+    {
+      "id": "ective",
+      "name": "Ective",
+      "bms": "proprietary",
+      "status": "unsupported",
+      "source": "third-party",
+      "lastVerified": "2026-08-17",
+      "notes": {
+        "en": "Two independent reverse engineering projects show Ective speaking its own protocol rather than Daly, JBD or JK. Ective devices can still appear in the device list because they use a common Bluetooth module, but they will not answer. Note that the AccuBOX S200 contains a shunt rather than a Bluetooth BMS.",
+        "de": "Zwei unabhängige Reverse-Engineering-Projekte zeigen, dass Ective ein eigenes Protokoll spricht und nicht Daly, JBD oder JK. Ective-Geräte können trotzdem in der Geräteliste erscheinen, weil sie ein verbreitetes Bluetooth-Modul nutzen, antworten aber nicht. In der AccuBOX S200 sitzt außerdem ein Shunt und kein Bluetooth-BMS."
+      }
+    }
+  ],
+  "generalNotes": [
+    {
+      "id": "why-foreign-devices-appear",
+      "title": {
+        "en": "Why batteries appear in the list but show no data",
+        "de": "Warum Batterien in der Liste stehen, aber keine Werte liefern"
+      },
+      "body": {
+        "en": "SmartBMS Utility finds devices by their Bluetooth service ID, not by name. The IDs used by Daly, JBD and JK are factory defaults on many cheap Bluetooth modules, so a battery with an entirely different BMS can still show up. The app then asks in a language that device does not speak, and no values arrive. That is a name collision on the transport layer, not a fault in the battery or the app.",
+        "de": "SmartBMS Utility findet Geräte über ihre Bluetooth-Service-ID, nicht über den Namen. Die IDs von Daly, JBD und JK sind Werkseinstellung vieler günstiger Bluetooth-Module, deshalb kann auch eine Batterie mit völlig anderem BMS in der Liste erscheinen. Die App fragt dann in einer Sprache, die das Gerät nicht spricht, und es kommen keine Werte an. Das ist eine Namenskollision auf Transportebene und kein Fehler der Batterie oder der App."
+      }
+    },
+    {
+      "id": "unfiltered-search",
+      "title": {
+        "en": "The unfiltered search shows everything",
+        "de": "Die ungefilterte Suche zeigt alles"
+      },
+      "body": {
+        "en": "The magnifier icon switches to an unfiltered search that lists every Bluetooth device nearby. It is useful when a battery does not appear otherwise, but a device showing up there says nothing about whether it is compatible.",
+        "de": "Das Lupensymbol schaltet auf eine ungefilterte Suche um, die jedes Bluetooth-Gerät in Reichweite auflistet. Das hilft, wenn eine Batterie sonst nicht erscheint, aber ein Gerät in dieser Liste sagt nichts darüber aus, ob es kompatibel ist."
+      }
+    },
+    {
+      "id": "xiaoxiang",
+      "title": {
+        "en": "If the manufacturer points you to the elephant app",
+        "de": "Wenn der Hersteller auf die Elefanten-App verweist"
+      },
+      "body": {
+        "en": "The app with the elephant logo is Xiaoxiang, which talks to JBD boards. If your battery works with it, it works with SmartBMS Utility too.",
+        "de": "Die App mit dem Elefanten ist Xiaoxiang, dahinter stecken JBD-Boards. Funktioniert die Batterie damit, funktioniert sie auch mit SmartBMS Utility."
+      }
+    }
+  ]
+}
