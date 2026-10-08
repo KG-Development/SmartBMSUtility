@@ -283,6 +283,18 @@
         "en": "A user reported their Kepworth battery working with SmartBMS Utility. The BMS inside is JBD, so monitoring and configuration behave like any other JBD based battery.",
         "de": "Ein Nutzer hat gemeldet, dass seine Kepworth-Batterie mit SmartBMS Utility funktioniert. Verbaut ist ein JBD-BMS, Überwachung und Konfiguration verhalten sich damit wie bei jeder anderen JBD-Batterie."
       }
+    },
+    {
+      "id": "feence",
+      "name": "FEENCE",
+      "bms": "JBD",
+      "status": "supported",
+      "source": "user-report",
+      "lastVerified": "2026-10-08",
+      "notes": {
+        "en": "A user reported their FEENCE battery working with SmartBMS Utility. The BMS inside is JBD, so monitoring and configuration behave like any other JBD based battery.",
+        "de": "Ein Nutzer hat gemeldet, dass seine FEENCE-Batterie mit SmartBMS Utility funktioniert. Verbaut ist ein JBD-BMS, Überwachung und Konfiguration verhalten sich damit wie bei jeder anderen JBD-Batterie."
+      }
     }
   ],
   "generalNotes": [
